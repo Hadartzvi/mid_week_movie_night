@@ -48,7 +48,7 @@
     .rsvp-input { width: 100%; padding: 11px 14px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 15px; margin-bottom: 14px; outline: none; }
     .rsvp-input:focus { border-color: var(--pink); }
     .emoji-row { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
-    .emoji-opt { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--border); background: var(--bg); cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: border-color 0.15s, background 0.15s; flex-shrink: 0; }
+    .emoji-opt { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--border); background: var(--bg); cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .emoji-opt.selected { border-color: var(--pink); background: var(--pink-light); }
     .rsvp-btn { width: 100%; padding: 13px; border-radius: var(--radius-md); border: none; background: var(--pink); color: white; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
     .rsvp-btn:hover { opacity: 0.88; }
@@ -69,6 +69,10 @@
     .movie-info .meta { font-size: 12px; color: var(--text-muted); }
     .attendees-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; background: var(--pink-light); color: var(--pink-dark); padding: 3px 9px; border-radius: 12px; margin-top: 6px; font-weight: 500; }
     .next-badge { font-size: 10px; background: var(--pink); color: white; padding: 2px 7px; border-radius: 10px; margin-left: 6px; font-weight: 600; }
+
+    .empty-state { padding: 40px 16px; text-align: center; color: var(--text-muted); }
+    .empty-state i { font-size: 48px; margin-bottom: 12px; display: block; }
+    .empty-state p { font-size: 15px; }
 
     .detail-back { display: flex; align-items: center; gap: 6px; padding: 14px 16px; font-size: 14px; color: var(--pink); cursor: pointer; border: none; background: none; font-weight: 500; }
     .detail-poster-wrap { width: 100%; height: 220px; overflow: hidden; background: var(--bg2); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 56px; }
@@ -95,8 +99,8 @@
     .field-group input, .field-group textarea { width: 100%; padding: 10px 12px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 14px; outline: none; font-family: inherit; }
     .field-group input:focus, .field-group textarea:focus { border-color: var(--purple); }
     .field-group textarea { min-height: 75px; resize: vertical; }
-    .add-btn  { width: 100%; padding: 12px; border-radius: var(--radius-md); border: none; background: var(--purple); color: white; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px; }
-    .save-btn { width: 100%; padding: 12px; border-radius: var(--radius-md); border: none; background: #3B6D11; color: white; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px; }
+    .add-btn    { width: 100%; padding: 12px; border-radius: var(--radius-md); border: none; background: var(--purple); color: white; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px; }
+    .save-btn   { width: 100%; padding: 12px; border-radius: var(--radius-md); border: none; background: #3B6D11; color: white; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px; }
     .cancel-btn { width: 100%; padding: 12px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: var(--bg); color: var(--text-muted); font-size: 14px; cursor: pointer; margin-top: 8px; }
     .danger-btn { width: 100%; padding: 12px; border-radius: var(--radius-md); border: none; background: #A32D2D; color: white; font-size: 14px; font-weight: 600; cursor: pointer; }
     .sync-row { display: flex; align-items: center; gap: 8px; }
@@ -139,7 +143,7 @@
       <div class="hero-title" id="hero-title">טוען...</div>
       <div class="hero-date" id="hero-date"></div>
       <div class="poster-stage" id="poster-stage">
-        <div class="poster-placeholder"><i class="ti ti-movie"></i><span>פוסטר הסרט</span></div>
+        <div class="poster-placeholder"><i class="ti ti-movie"></i><span>טוען...</span></div>
       </div>
     </div>
     <div class="rsvp-area">
@@ -194,7 +198,7 @@
       </div>
       <div class="admin-section">
         <h3>סרטים בתוכניה</h3>
-        <div class="admin-card" id="admin-movies-list"></div>
+        <div class="admin-card" id="admin-movies-list"><p style="font-size:13px;color:var(--text-muted)">טוען...</p></div>
       </div>
       <div class="admin-section">
         <h3 id="form-section-title">הוספת סרט חדש</h3>
@@ -211,7 +215,7 @@
         </div>
       </div>
       <div class="admin-section">
-        <button class="danger-btn" onclick="if(confirm('למחוק את כל ההרשמות המקומיות?'))clearAll()">מחיקת הרשמות מקומיות</button>
+        <button class="danger-btn" onclick="if(confirm('למחוק את כל ההרשמות המקומיות?'))clearAllRsvps()">מחיקת הרשמות מקומיות</button>
       </div>
     </div>
   </div>
@@ -222,7 +226,7 @@
 // ============================================================
 // הגדרות
 // ============================================================
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyafOfOzMSfXlRr7l7KFfraEkybLTORlvy8NgbjXuEUT9Bi8Sy4r74jWmOxMAuiH5TL/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxB1Y_-v03KoWaoDbA9469W9w3GnSNsb72r7lEFOzGuW2Ftv-UYh73xg3zbrHahaR9M/exec';
 const ADMIN_PW   = '5339';
 // ============================================================
 
@@ -235,114 +239,143 @@ const BUBBLE_POS = [
 ];
 
 let selectedEmoji = EMOJIS[0];
-let movies = JSON.parse(localStorage.getItem('mn_movies') || 'null');
-if (!movies) {
-  const now = new Date(), m1 = now.getMonth(), y1 = now.getFullYear();
-  const fmt = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
-  movies = [
-    {id:1, title:'Parasite', date:fmt(new Date(y1,m1,20)), time:'20:00', poster:'', genre:'מתח / דרמה', desc:'משפחה ענייה חודרת לחיי משפחה עשירה — עם תוצאות בלתי צפויות. זוכה פרס אוסקר לסרט הטוב ביותר.'},
-    {id:2, title:'Everything Everywhere All at Once', date:fmt(new Date(y1,m1===11?0:m1+1,8)), time:'20:30', poster:'', genre:'מדע בדיוני / קומדיה', desc:'אישה סינית-אמריקאית מגלה שעליה לחבר לכל הגרסאות של עצמה ביקומים מקבילים.'},
-    {id:3, title:'The Grand Budapest Hotel', date:fmt(new Date(y1,m1===11?0:m1+1,22)), time:'20:00', poster:'', genre:'קומדיה', desc:'קונסיירז׳ של מלון יוקרה נכנס לתככים, גניבת ציור ומרדף — עם ויז׳ואל מופלא של וס אנדרסון.'}
-  ];
-  localStorage.setItem('mn_movies', JSON.stringify(movies));
-}
-let rsvps = JSON.parse(localStorage.getItem('mn_rsvps') || '{}');
+let movies = [];
+let rsvps  = JSON.parse(localStorage.getItem('mn_rsvps') || '{}');
 
-function saveMovies() { localStorage.setItem('mn_movies', JSON.stringify(movies)); }
-function saveRsvps()  { localStorage.setItem('mn_rsvps',  JSON.stringify(rsvps)); }
+function saveRsvps() { localStorage.setItem('mn_rsvps', JSON.stringify(rsvps)); }
 function parseDate(s) { const [d,m,y]=s.split('/').map(Number); return new Date(y,m-1,d); }
 function heDate(s) { const d=parseDate(s); return `${d.getDate()} ב${MONTHS_HE[d.getMonth()]} ${d.getFullYear()}`; }
+
 function getNextMovie() {
   const now=new Date(); now.setHours(0,0,0,0);
-  return [...movies].filter(m=>parseDate(m.date)>=now).sort((a,b)=>parseDate(a.date)-parseDate(b.date))[0]||movies[movies.length-1];
+  return [...movies].filter(m=>parseDate(m.date)>=now).sort((a,b)=>parseDate(a.date)-parseDate(b.date))[0]
+         || movies[movies.length-1];
 }
 function getMoviesInRange() {
   const now=new Date(); now.setHours(0,0,0,0);
   const end=new Date(now); end.setMonth(end.getMonth()+2);
-  return [...movies].filter(m=>{const d=parseDate(m.date);return d>=now&&d<=end;}).sort((a,b)=>parseDate(a.date)-parseDate(b.date));
+  return [...movies].filter(m=>{const d=parseDate(m.date);return d>=now&&d<=end;})
+                    .sort((a,b)=>parseDate(a.date)-parseDate(b.date));
 }
 
-async function fetchRsvpsFromSheets() {
-  try {
-    const res=await fetch(SHEETS_URL+'?t='+Date.now());
-    const data=await res.json();
-    const fresh={};
-    data.forEach(row=>{
-      if(!row.movie_id)return;
-      const id=parseInt(row.movie_id);
-      if(!fresh[id])fresh[id]=[];
-      if(row.name&&!fresh[id].find(p=>p.name===row.name))fresh[id].push({name:row.name,emoji:row.emoji||'⭐'});
-    });
-    rsvps=fresh; saveRsvps(); return true;
-  } catch{return false;}
+// ---- Sheets API ----
+async function sheetsGet(type) {
+  const res = await fetch(SHEETS_URL + '?type=' + type + '&t=' + Date.now());
+  return res.json();
 }
-async function sendToSheets(movie,name,emoji) {
+async function sheetsPost(payload) {
+  await fetch(SHEETS_URL, {
+    method: 'POST',
+    headers: {'Content-Type':'text/plain'},
+    body: JSON.stringify(payload)
+  });
+}
+
+async function loadMovies() {
   try {
-    await fetch(SHEETS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({movie_id:movie.id,movie_title:movie.title,name,emoji})});
+    const data = await sheetsGet('movies');
+    movies = data.map(m => ({...m, id: String(m.id)}));
     return true;
-  } catch{return false;}
+  } catch { return false; }
 }
 
+async function loadRsvps() {
+  try {
+    const data = await sheetsGet('rsvps');
+    const fresh = {};
+    data.forEach(row => {
+      if (!row.movie_id) return;
+      const id = String(row.movie_id);
+      if (!fresh[id]) fresh[id] = [];
+      if (row.name && !fresh[id].find(p=>p.name===row.name))
+        fresh[id].push({name: row.name, emoji: row.emoji || '⭐'});
+    });
+    rsvps = fresh; saveRsvps(); return true;
+  } catch { return false; }
+}
+
+// ---- אמוג'י ----
 function renderEmojis() {
-  document.getElementById('emoji-row').innerHTML=EMOJIS.map(e=>
+  document.getElementById('emoji-row').innerHTML = EMOJIS.map(e=>
     `<button class="emoji-opt${e===selectedEmoji?' selected':''}" onclick="selectEmoji('${e}')">${e}</button>`
   ).join('');
 }
-function selectEmoji(e){selectedEmoji=e;renderEmojis();}
+function selectEmoji(e) { selectedEmoji=e; renderEmojis(); }
 
+// ---- דף בית ----
 function renderHome() {
-  const movie=getNextMovie(); if(!movie)return;
-  document.getElementById('hero-title').textContent=movie.title;
-  document.getElementById('hero-date').textContent=`${heDate(movie.date)} • ${movie.time}`;
-  const att=rsvps[movie.id]||[];
-  const bubbles=att.slice(0,8).map((p,i)=>{
-    const pos=BUBBLE_POS[i%BUBBLE_POS.length];
-    const s=Object.entries(pos).map(([k,v])=>`${k}:${v}`).join(';');
+  const movie = getNextMovie();
+  if (!movie) {
+    document.getElementById('hero-title').textContent = 'אין הקרנות קרובות';
+    document.getElementById('hero-date').textContent  = '';
+    document.getElementById('poster-stage').innerHTML = '<div class="poster-placeholder"><i class="ti ti-movie"></i><span>בקרוב...</span></div>';
+    document.getElementById('attendee-count').textContent = '';
+    document.getElementById('rsvp-btn').disabled = true;
+    renderEmojis(); return;
+  }
+  document.getElementById('hero-title').textContent = movie.title;
+  document.getElementById('hero-date').textContent  = `${heDate(movie.date)} • ${movie.time}`;
+  const att = rsvps[String(movie.id)] || [];
+  const bubbles = att.slice(0,8).map((p,i) => {
+    const pos = BUBBLE_POS[i%BUBBLE_POS.length];
+    const s = Object.entries(pos).map(([k,v])=>`${k}:${v}`).join(';');
     return `<div class="bubble" style="${s}"><span>${p.emoji}</span><div class="bubble-tip">${p.name}</div></div>`;
   }).join('');
-  const poster=movie.poster
-    ?`<img src="${movie.poster}" class="poster-img" alt="${movie.title}" onerror="this.outerHTML='<div class=poster-placeholder><i class=ti-movie></i><span>${movie.title}</span></div>'">`
-    :`<div class="poster-placeholder"><i class="ti ti-movie"></i><span>${movie.title}</span></div>`;
-  document.getElementById('poster-stage').innerHTML=poster+bubbles;
-  const count=att.length;
-  document.getElementById('attendee-count').textContent=count>0?`${count} ${count===1?'חבר/ה':'חברים'} אישרו הגעה 🎉`:'';
-  const already=!!localStorage.getItem('mn_me_'+movie.id);
-  const btn=document.getElementById('rsvp-btn');
-  if(already){btn.textContent='✓ אישרת הגעה!';btn.disabled=true;}
-  else{btn.textContent='אשר/י הגעה';btn.disabled=false;}
+  const poster = movie.poster
+    ? `<img src="${movie.poster}" class="poster-img" alt="${movie.title}" onerror="this.outerHTML='<div class=poster-placeholder><i class=ti-movie></i><span>${movie.title}</span></div>'">`
+    : `<div class="poster-placeholder"><i class="ti ti-movie"></i><span>${movie.title}</span></div>`;
+  document.getElementById('poster-stage').innerHTML = poster + bubbles;
+  const count = att.length;
+  document.getElementById('attendee-count').textContent = count>0 ? `${count} ${count===1?'חבר/ה':'חברים'} אישרו הגעה 🎉` : '';
+  const already = !!localStorage.getItem('mn_me_'+movie.id);
+  const btn = document.getElementById('rsvp-btn');
+  if (already) { btn.textContent='✓ אישרת הגעה!'; btn.disabled=true; }
+  else         { btn.textContent='אשר/י הגעה';    btn.disabled=false; }
   renderEmojis();
 }
 
 async function doRsvp() {
-  const movie=getNextMovie(); if(!movie)return;
-  const name=document.getElementById('rsvp-name').value.trim();
-  if(!name){showToast('כתבי את הכינוי שלך 😊');return;}
-  if(!rsvps[movie.id])rsvps[movie.id]=[];
-  if(rsvps[movie.id].find(p=>p.name===name)){showToast('הכינוי הזה כבר נרשם!');return;}
-  const btn=document.getElementById('rsvp-btn');
-  btn.innerHTML='<span class="spinner"></span>שולח...'; btn.disabled=true;
-  const ok=await sendToSheets(movie,name,selectedEmoji);
-  rsvps[movie.id].push({name,emoji:selectedEmoji}); saveRsvps();
-  localStorage.setItem('mn_me_'+movie.id,name);
-  showToast(ok?'נרשמת! מחכות לך 🎉':'נרשמת! (ללא חיבור לרשת)');
+  const movie = getNextMovie(); if (!movie) return;
+  const name  = document.getElementById('rsvp-name').value.trim();
+  if (!name) { showToast('כתבי את הכינוי שלך 😊'); return; }
+  const id = String(movie.id);
+  if (!rsvps[id]) rsvps[id] = [];
+  if (rsvps[id].find(p=>p.name===name)) { showToast('הכינוי הזה כבר נרשם!'); return; }
+  const btn = document.getElementById('rsvp-btn');
+  btn.innerHTML = '<span class="spinner"></span>שולח...'; btn.disabled = true;
+  try {
+    await sheetsPost({action:'addRsvp', movie_id:movie.id, movie_title:movie.title, name, emoji:selectedEmoji});
+    rsvps[id].push({name, emoji:selectedEmoji}); saveRsvps();
+    localStorage.setItem('mn_me_'+movie.id, name);
+    showToast('נרשמת! מחכות לך 🎉');
+  } catch {
+    rsvps[id].push({name, emoji:selectedEmoji}); saveRsvps();
+    localStorage.setItem('mn_me_'+movie.id, name);
+    showToast('נרשמת! (ללא חיבור לרשת)');
+  }
   renderHome();
 }
 
+// ---- תוכניה ----
 function renderSchedule() {
-  const range=getMoviesInRange(),list=document.getElementById('schedule-list');
-  if(!range.length){list.innerHTML='<p style="padding:20px 16px;color:var(--text-muted)">אין הקרנות בחודשיים הקרובים</p>';return;}
-  const next=getNextMovie();
-  const byMonth={};
-  range.forEach(m=>{
-    const d=parseDate(m.date),k=`${d.getMonth()}_${d.getFullYear()}`;
-    if(!byMonth[k])byMonth[k]={label:`${MONTHS_HE[d.getMonth()]} ${d.getFullYear()}`,movies:[]};
+  const range = getMoviesInRange();
+  const list  = document.getElementById('schedule-list');
+  if (!range.length) {
+    list.innerHTML = '<div class="empty-state"><i class="ti ti-calendar-off"></i><p>אין הקרנות בחודשיים הקרובים</p></div>';
+    return;
+  }
+  const next = getNextMovie();
+  const byMonth = {};
+  range.forEach(m => {
+    const d=parseDate(m.date), k=`${d.getMonth()}_${d.getFullYear()}`;
+    if (!byMonth[k]) byMonth[k]={label:`${MONTHS_HE[d.getMonth()]} ${d.getFullYear()}`,movies:[]};
     byMonth[k].movies.push(m);
   });
-  list.innerHTML=Object.values(byMonth).map(({label,movies:ms})=>
+  list.innerHTML = Object.values(byMonth).map(({label,movies:ms}) =>
     `<div class="month-section"><div class="month-label">${label}</div>${ms.map(m=>{
-      const att=(rsvps[m.id]||[]).length,isNext=next&&m.id===next.id;
+      const att=(rsvps[String(m.id)]||[]).length, isNext=next&&String(m.id)===String(next.id);
       const thumb=m.poster?`<img src="${m.poster}" alt="${m.title}" onerror="this.parentElement.innerHTML='<i class=\\'ti ti-movie\\'></i>'">`:'<i class="ti ti-movie"></i>';
-      return `<div class="movie-card" onclick="goDetail(${m.id})">
+      return `<div class="movie-card" onclick="goDetail('${m.id}')">
         <div class="movie-thumb">${thumb}</div>
         <div class="movie-info">
           <h4>${isNext?'<span class="next-badge">הבא</span> ':''}${m.title}</h4>
@@ -355,14 +388,15 @@ function renderSchedule() {
   ).join('');
 }
 
+// ---- פרטי סרט ----
 function goDetail(id) {
-  const m=movies.find(x=>x.id===id); if(!m)return;
+  const m=movies.find(x=>String(x.id)===String(id)); if(!m)return;
   document.getElementById('detail-title').textContent=m.title;
   document.getElementById('detail-meta').textContent=`${heDate(m.date)} • ${m.time}${m.genre?' • '+m.genre:''}`;
   document.getElementById('detail-desc').textContent=m.desc||'';
   const dp=document.getElementById('detail-poster');
   dp.innerHTML=m.poster?`<img src="${m.poster}" style="width:100%;height:100%;object-fit:cover" alt="${m.title}">`:'<i class="ti ti-movie"></i>';
-  const att=rsvps[m.id]||[];
+  const att=rsvps[String(m.id)]||[];
   document.getElementById('detail-att-title').textContent=`מגיעים (${att.length})`;
   document.getElementById('detail-bubbles').innerHTML=att.length===0
     ?'<p style="font-size:13px;color:var(--text-muted)">עדיין אין הרשמות</p>'
@@ -371,8 +405,9 @@ function goDetail(id) {
   document.getElementById('page-detail').classList.add('active');
 }
 
+// ---- ניהול ----
 function checkPw() {
-  if(document.getElementById('admin-pw').value===ADMIN_PW){
+  if (document.getElementById('admin-pw').value===ADMIN_PW) {
     document.getElementById('admin-lock-screen').style.display='none';
     document.getElementById('admin-panel').style.display='block';
     loadAdminData();
@@ -380,19 +415,27 @@ function checkPw() {
 }
 
 async function loadAdminData() {
-  const dot=document.getElementById('sync-dot'),txt=document.getElementById('sync-txt');
-  txt.textContent='מתחבר לגוגל שיטס...';
-  const ok=await fetchRsvpsFromSheets();
-  dot.classList.toggle('off',!ok);
-  txt.textContent=ok?'מחובר לגוגל שיטס ✓':'לא ניתן להתחבר — מציג נתונים מקומיים';
-  renderAdminStats(); renderAdminMoviesList(); renderHome();
+  const dot=document.getElementById('sync-dot'), txt=document.getElementById('sync-txt');
+  txt.textContent='מתחברת לגוגל שיטס...';
+  try {
+    await Promise.all([loadMovies(), loadRsvps()]);
+    dot.classList.remove('off');
+    txt.textContent='מחוברת לגוגל שיטס ✓';
+  } catch {
+    dot.classList.add('off');
+    txt.textContent='לא ניתן להתחבר';
+  }
+  renderAdminStats();
+  renderAdminMoviesList();
+  renderHome();
+  renderSchedule();
 }
 
 function renderAdminStats() {
-  const range=getMoviesInRange(),container=document.getElementById('admin-stats');
-  if(!range.length){container.innerHTML='<p style="font-size:13px;color:var(--text-muted)">אין הקרנות בחודשיים הקרובים</p>';return;}
+  const range=getMoviesInRange(), container=document.getElementById('admin-stats');
+  if (!range.length) { container.innerHTML='<p style="font-size:13px;color:var(--text-muted)">אין הקרנות בחודשיים הקרובים</p>'; return; }
   container.innerHTML=range.map(m=>{
-    const att=rsvps[m.id]||[];
+    const att=rsvps[String(m.id)]||[];
     return `<div class="stat-row">
       <div class="stat-top"><span class="stat-movie">${m.title}</span><span class="stat-count">${att.length} מגיעים</span></div>
       <div class="stat-names">${att.length?att.map(p=>`${p.emoji} ${p.name}`).join(' · '):'אין הרשמות עדיין'}</div>
@@ -403,7 +446,7 @@ function renderAdminStats() {
 function renderAdminMoviesList() {
   const container=document.getElementById('admin-movies-list');
   const sorted=[...movies].sort((a,b)=>parseDate(a.date)-parseDate(b.date));
-  if(!sorted.length){container.innerHTML='<p style="font-size:13px;color:var(--text-muted)">אין סרטים</p>';return;}
+  if (!sorted.length) { container.innerHTML='<p style="font-size:13px;color:var(--text-muted)">אין סרטים — הוסיפי את הראשון!</p>'; return; }
   container.innerHTML=sorted.map(m=>`
     <div class="admin-movie-row">
       <div class="admin-movie-info">
@@ -411,15 +454,14 @@ function renderAdminMoviesList() {
         <div class="amdate">${heDate(m.date)} • ${m.time}</div>
       </div>
       <div class="row-actions">
-        <button class="icon-btn edit" onclick="startEdit(${m.id})" title="עריכה"><i class="ti ti-edit"></i></button>
-        <button class="icon-btn delete" onclick="deleteMovie(${m.id})" title="מחיקה"><i class="ti ti-trash"></i></button>
+        <button class="icon-btn edit" onclick="startEdit('${m.id}')" title="עריכה"><i class="ti ti-edit"></i></button>
+        <button class="icon-btn delete" onclick="deleteMovie('${m.id}')" title="מחיקה"><i class="ti ti-trash"></i></button>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
 function startEdit(id) {
-  const m=movies.find(x=>x.id===id); if(!m)return;
+  const m=movies.find(x=>String(x.id)===String(id)); if(!m)return;
   document.getElementById('edit-id').value=id;
   document.getElementById('a-title').value=m.title;
   document.getElementById('a-date').value=m.date;
@@ -445,67 +487,92 @@ function cancelEdit() {
 
 function submitMovieForm() {
   const editId=document.getElementById('edit-id').value;
-  if(editId) saveEdit(parseInt(editId)); else addMovie();
+  if (editId) saveEdit(editId); else addMovie();
 }
 
-function saveEdit(id) {
+async function addMovie() {
   const title=document.getElementById('a-title').value.trim();
   const date=document.getElementById('a-date').value.trim();
-  if(!title||!date){showToast('שם ותאריך הם שדות חובה');return;}
-  const idx=movies.findIndex(m=>m.id===id); if(idx===-1)return;
-  movies[idx]={...movies[idx],title,date,
-    time:document.getElementById('a-time').value.trim()||'20:00',
-    poster:document.getElementById('a-poster').value.trim(),
-    genre:document.getElementById('a-genre').value.trim(),
-    desc:document.getElementById('a-desc').value.trim()
+  if (!title||!date) { showToast('שם ותאריך הם שדות חובה'); return; }
+  const btn=document.getElementById('form-submit-btn');
+  btn.textContent='שומר...'; btn.disabled=true;
+  const newMovie = {
+    id: String(Date.now()), title, date,
+    time:   document.getElementById('a-time').value.trim()||'20:00',
+    poster: document.getElementById('a-poster').value.trim(),
+    genre:  document.getElementById('a-genre').value.trim(),
+    desc:   document.getElementById('a-desc').value.trim()
   };
-  saveMovies(); cancelEdit();
-  renderAdminMoviesList(); renderAdminStats(); renderSchedule(); renderHome();
-  showToast('הסרט עודכן ✓');
+  try {
+    await sheetsPost({action:'addMovie', ...newMovie});
+    movies.push(newMovie);
+    ['a-title','a-date','a-time','a-poster','a-genre','a-desc'].forEach(id=>document.getElementById(id).value='');
+    renderAdminMoviesList(); renderAdminStats(); renderSchedule(); renderHome();
+    showToast('הסרט נוסף לתוכניה ✓');
+  } catch { showToast('שגיאה בשמירה — נסי שוב'); }
+  btn.textContent='הוסיפי סרט לתוכניה'; btn.disabled=false;
 }
 
-function addMovie() {
+async function saveEdit(id) {
   const title=document.getElementById('a-title').value.trim();
   const date=document.getElementById('a-date').value.trim();
-  if(!title||!date){showToast('שם ותאריך הם שדות חובה');return;}
-  movies.push({id:Date.now(),title,date,
-    time:document.getElementById('a-time').value.trim()||'20:00',
-    poster:document.getElementById('a-poster').value.trim(),
-    genre:document.getElementById('a-genre').value.trim(),
-    desc:document.getElementById('a-desc').value.trim()
-  });
-  saveMovies();
-  ['a-title','a-date','a-time','a-poster','a-genre','a-desc'].forEach(id=>document.getElementById(id).value='');
-  renderAdminMoviesList(); renderAdminStats(); renderSchedule();
-  showToast('הסרט נוסף לתוכניה ✓');
+  if (!title||!date) { showToast('שם ותאריך הם שדות חובה'); return; }
+  const btn=document.getElementById('form-submit-btn');
+  btn.textContent='שומר...'; btn.disabled=true;
+  const updated = {
+    id, title, date,
+    time:   document.getElementById('a-time').value.trim()||'20:00',
+    poster: document.getElementById('a-poster').value.trim(),
+    genre:  document.getElementById('a-genre').value.trim(),
+    desc:   document.getElementById('a-desc').value.trim()
+  };
+  try {
+    await sheetsPost({action:'editMovie', ...updated});
+    const idx=movies.findIndex(m=>String(m.id)===String(id));
+    if (idx!==-1) movies[idx]=updated;
+    cancelEdit();
+    renderAdminMoviesList(); renderAdminStats(); renderSchedule(); renderHome();
+    showToast('הסרט עודכן ✓');
+  } catch { showToast('שגיאה בעדכון — נסי שוב'); }
+  btn.disabled=false;
 }
 
-function deleteMovie(id) {
-  const m=movies.find(x=>x.id===id); if(!m)return;
-  if(!confirm(`למחוק את "${m.title}"?`))return;
-  movies=movies.filter(x=>x.id!==id); saveMovies();
-  renderAdminMoviesList(); renderAdminStats(); renderSchedule(); renderHome();
-  showToast('הסרט נמחק');
+async function deleteMovie(id) {
+  const m=movies.find(x=>String(x.id)===String(id)); if(!m)return;
+  if (!confirm(`למחוק את "${m.title}"?`)) return;
+  try {
+    await sheetsPost({action:'deleteMovie', id});
+    movies=movies.filter(x=>String(x.id)!==String(id));
+    renderAdminMoviesList(); renderAdminStats(); renderSchedule(); renderHome();
+    showToast('הסרט נמחק');
+  } catch { showToast('שגיאה במחיקה — נסי שוב'); }
 }
 
-function clearAll(){rsvps={};saveRsvps();renderAdminStats();renderHome();showToast('ההרשמות המקומיות נמחקו');}
+function clearAllRsvps() { rsvps={}; saveRsvps(); renderAdminStats(); renderHome(); showToast('ההרשמות המקומיות נמחקו'); }
 
-function goPage(name,btn){
+function goPage(name,btn) {
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  if(btn)btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   document.getElementById('page-'+name).classList.add('active');
-  if(name==='home')renderHome();
-  if(name==='schedule')renderSchedule();
+  if (name==='home')     renderHome();
+  if (name==='schedule') renderSchedule();
 }
 
-function showToast(msg){
+function showToast(msg) {
   const t=document.getElementById('toast');
   t.textContent=msg; t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-renderHome();
+// ---- אתחול ----
+(async function init() {
+  renderEmojis();
+  await loadMovies();
+  await loadRsvps();
+  renderHome();
+  renderSchedule();
+})();
 </script>
 </body>
 </html>
