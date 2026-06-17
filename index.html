@@ -29,10 +29,18 @@
     .page { display: none; padding-bottom: 90px; }
     .page.active { display: block; }
 
+    /* skeleton */
+    .skel { background: var(--bg2); border-radius: var(--radius-md); animation: pulse 1.4s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .skel-poster { width: 200px; height: 300px; border-radius: var(--radius-lg); margin: 0 auto 28px; }
+    .skel-line { height: 18px; margin: 8px 16px; }
+    .skel-line.short { width: 40%; margin: 0 auto 24px; }
+    .skel-card { height: 80px; margin: 0 16px 10px; border-radius: var(--radius-lg); }
+
     .hero-section { padding: 24px 16px 0; text-align: center; }
     .hero-label { font-size: 11px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
-    .hero-title { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
-    .hero-date { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+    .hero-title { font-size: 24px; font-weight: 600; margin-bottom: 4px; min-height: 32px; }
+    .hero-date { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; min-height: 20px; }
     .poster-stage { position: relative; width: 200px; height: 300px; margin: 0 auto 28px; }
     .poster-img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-lg); border: 0.5px solid var(--border); display: block; }
     .poster-placeholder { width: 100%; height: 100%; border-radius: var(--radius-lg); border: 0.5px solid var(--border); background: var(--bg2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--text-muted); font-size: 14px; }
@@ -69,10 +77,8 @@
     .movie-info .meta { font-size: 12px; color: var(--text-muted); }
     .attendees-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; background: var(--pink-light); color: var(--pink-dark); padding: 3px 9px; border-radius: 12px; margin-top: 6px; font-weight: 500; }
     .next-badge { font-size: 10px; background: var(--pink); color: white; padding: 2px 7px; border-radius: 10px; margin-left: 6px; font-weight: 600; }
-
     .empty-state { padding: 40px 16px; text-align: center; color: var(--text-muted); }
     .empty-state i { font-size: 48px; margin-bottom: 12px; display: block; }
-    .empty-state p { font-size: 15px; }
 
     .detail-back { display: flex; align-items: center; gap: 6px; padding: 14px 16px; font-size: 14px; color: var(--pink); cursor: pointer; border: none; background: none; font-weight: 500; }
     .detail-poster-wrap { width: 100%; height: 220px; overflow: hidden; background: var(--bg2); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 56px; }
@@ -140,10 +146,10 @@
   <div id="page-home" class="page active">
     <div class="hero-section">
       <div class="hero-label">הקרנה הבאה</div>
-      <div class="hero-title" id="hero-title">טוען...</div>
+      <div class="hero-title" id="hero-title"></div>
       <div class="hero-date" id="hero-date"></div>
       <div class="poster-stage" id="poster-stage">
-        <div class="poster-placeholder"><i class="ti ti-movie"></i><span>טוען...</span></div>
+        <div class="skel skel-poster"></div>
       </div>
     </div>
     <div class="rsvp-area">
@@ -160,7 +166,11 @@
   <!-- SCHEDULE -->
   <div id="page-schedule" class="page">
     <div class="page-header"><h2>תוכניה</h2><p>הקרנות בחודשיים הקרובים</p></div>
-    <div id="schedule-list"></div>
+    <div id="schedule-list">
+      <div class="skel skel-card"></div>
+      <div class="skel skel-card"></div>
+      <div class="skel skel-card"></div>
+    </div>
   </div>
 
   <!-- DETAIL -->
@@ -189,7 +199,7 @@
       <div class="admin-section">
         <div class="sync-row">
           <div class="sync-dot off" id="sync-dot"></div>
-          <span class="sync-txt" id="sync-txt">מתחבר לגוגל שיטס...</span>
+          <span class="sync-txt" id="sync-txt">מתחברת...</span>
         </div>
       </div>
       <div class="admin-section">
@@ -223,12 +233,11 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ============================================================
-// הגדרות
-// ============================================================
 const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxB1Y_-v03KoWaoDbA9469W9w3GnSNsb72r7lEFOzGuW2Ftv-UYh73xg3zbrHahaR9M/exec';
 const ADMIN_PW   = '5339';
-// ============================================================
+const CACHE_KEY_MOVIES = 'mn_cache_movies';
+const CACHE_KEY_RSVPS  = 'mn_cache_rsvps';
+const CACHE_TTL = 5 * 60 * 1000; // 5 דקות
 
 const EMOJIS = ['🐱','🦊','🐼','🦋','🌙','⭐','🎸','🌸','🦄','🍕','🎩','🌈','🐸','🦁','🐧','🦉','🍦','🎃','🌺','🎵'];
 const MONTHS_HE = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
@@ -240,25 +249,23 @@ const BUBBLE_POS = [
 
 let selectedEmoji = EMOJIS[0];
 let movies = [];
-let rsvps  = JSON.parse(localStorage.getItem('mn_rsvps') || '{}');
+let rsvps  = {};
 
-function saveRsvps() { localStorage.setItem('mn_rsvps', JSON.stringify(rsvps)); }
-function parseDate(s) { const [d,m,y]=s.split('/').map(Number); return new Date(y,m-1,d); }
-function heDate(s) { const d=parseDate(s); return `${d.getDate()} ב${MONTHS_HE[d.getMonth()]} ${d.getFullYear()}`; }
-
-function getNextMovie() {
-  const now=new Date(); now.setHours(0,0,0,0);
-  return [...movies].filter(m=>parseDate(m.date)>=now).sort((a,b)=>parseDate(a.date)-parseDate(b.date))[0]
-         || movies[movies.length-1];
+// ---- Cache ----
+function cacheGet(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const { data, ts } = JSON.parse(raw);
+    if (Date.now() - ts > CACHE_TTL) return null;
+    return data;
+  } catch { return null; }
 }
-function getMoviesInRange() {
-  const now=new Date(); now.setHours(0,0,0,0);
-  const end=new Date(now); end.setMonth(end.getMonth()+2);
-  return [...movies].filter(m=>{const d=parseDate(m.date);return d>=now&&d<=end;})
-                    .sort((a,b)=>parseDate(a.date)-parseDate(b.date));
+function cacheSet(key, data) {
+  try { localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() })); } catch {}
 }
 
-// ---- Sheets API ----
+// ---- Sheets ----
 async function sheetsGet(type) {
   const res = await fetch(SHEETS_URL + '?type=' + type + '&t=' + Date.now());
   return res.json();
@@ -271,27 +278,76 @@ async function sheetsPost(payload) {
   });
 }
 
-async function loadMovies() {
+function parseRsvpData(data) {
+  const fresh = {};
+  data.forEach(row => {
+    if (!row.movie_id) return;
+    const id = String(row.movie_id);
+    if (!fresh[id]) fresh[id] = [];
+    if (row.name && !fresh[id].find(p=>p.name===row.name))
+      fresh[id].push({name: row.name, emoji: row.emoji || '⭐'});
+  });
+  return fresh;
+}
+
+// טעינה ראשונה — מ-cache מיד, רקע מ-Sheets
+async function initData() {
+  // הצג cache מיד אם קיים
+  const cachedMovies = cacheGet(CACHE_KEY_MOVIES);
+  const cachedRsvps  = cacheGet(CACHE_KEY_RSVPS);
+  if (cachedMovies) { movies = cachedMovies; renderHome(); renderSchedule(); }
+  if (cachedRsvps)  { rsvps  = cachedRsvps; renderHome(); renderSchedule(); }
+
+  // טען מ-Sheets ברקע (גם אם יש cache)
   try {
-    const data = await sheetsGet('movies');
-    movies = data.map(m => ({...m, id: String(m.id)}));
+    const [moviesData, rsvpsData] = await Promise.all([
+      sheetsGet('movies'),
+      sheetsGet('rsvps')
+    ]);
+    movies = moviesData.map(m => ({...m, id: String(m.id)}));
+    rsvps  = parseRsvpData(rsvpsData);
+    cacheSet(CACHE_KEY_MOVIES, movies);
+    cacheSet(CACHE_KEY_RSVPS,  rsvps);
+    renderHome();
+    renderSchedule();
+  } catch(e) {
+    if (!cachedMovies) renderHome();
+    if (!cachedMovies) renderSchedule();
+  }
+}
+
+async function refreshFromSheets() {
+  try {
+    const [moviesData, rsvpsData] = await Promise.all([
+      sheetsGet('movies'),
+      sheetsGet('rsvps')
+    ]);
+    movies = moviesData.map(m => ({...m, id: String(m.id)}));
+    rsvps  = parseRsvpData(rsvpsData);
+    cacheSet(CACHE_KEY_MOVIES, movies);
+    cacheSet(CACHE_KEY_RSVPS,  rsvps);
     return true;
   } catch { return false; }
 }
 
-async function loadRsvps() {
-  try {
-    const data = await sheetsGet('rsvps');
-    const fresh = {};
-    data.forEach(row => {
-      if (!row.movie_id) return;
-      const id = String(row.movie_id);
-      if (!fresh[id]) fresh[id] = [];
-      if (row.name && !fresh[id].find(p=>p.name===row.name))
-        fresh[id].push({name: row.name, emoji: row.emoji || '⭐'});
-    });
-    rsvps = fresh; saveRsvps(); return true;
-  } catch { return false; }
+// ---- utils ----
+function parseDate(s) {
+  if (!s) return new Date(0);
+  const str = String(s).trim();
+  if (str.includes('/')) { const [d,m,y]=str.split('/').map(Number); return new Date(y,m-1,d); }
+  return new Date(str);
+}
+function heDate(s) { const d=parseDate(s); return `${d.getDate()} ב${MONTHS_HE[d.getMonth()]} ${d.getFullYear()}`; }
+function getNextMovie() {
+  const now=new Date(); now.setHours(0,0,0,0);
+  return [...movies].filter(m=>parseDate(m.date)>=now).sort((a,b)=>parseDate(a.date)-parseDate(b.date))[0]
+         || movies[movies.length-1];
+}
+function getMoviesInRange() {
+  const now=new Date(); now.setHours(0,0,0,0);
+  const end=new Date(now); end.setMonth(end.getMonth()+2);
+  return [...movies].filter(m=>{const d=parseDate(m.date);return d>=now&&d<=end;})
+                    .sort((a,b)=>parseDate(a.date)-parseDate(b.date));
 }
 
 // ---- אמוג'י ----
@@ -317,8 +373,8 @@ function renderHome() {
   document.getElementById('hero-date').textContent  = `${heDate(movie.date)} • ${movie.time}`;
   const att = rsvps[String(movie.id)] || [];
   const bubbles = att.slice(0,8).map((p,i) => {
-    const pos = BUBBLE_POS[i%BUBBLE_POS.length];
-    const s = Object.entries(pos).map(([k,v])=>`${k}:${v}`).join(';');
+    const pos=BUBBLE_POS[i%BUBBLE_POS.length];
+    const s=Object.entries(pos).map(([k,v])=>`${k}:${v}`).join(';');
     return `<div class="bubble" style="${s}"><span>${p.emoji}</span><div class="bubble-tip">${p.name}</div></div>`;
   }).join('');
   const poster = movie.poster
@@ -335,21 +391,22 @@ function renderHome() {
 }
 
 async function doRsvp() {
-  const movie = getNextMovie(); if (!movie) return;
-  const name  = document.getElementById('rsvp-name').value.trim();
+  const movie=getNextMovie(); if(!movie)return;
+  const name=document.getElementById('rsvp-name').value.trim();
   if (!name) { showToast('כתבי את הכינוי שלך 😊'); return; }
-  const id = String(movie.id);
-  if (!rsvps[id]) rsvps[id] = [];
+  const id=String(movie.id);
+  if (!rsvps[id]) rsvps[id]=[];
   if (rsvps[id].find(p=>p.name===name)) { showToast('הכינוי הזה כבר נרשם!'); return; }
-  const btn = document.getElementById('rsvp-btn');
-  btn.innerHTML = '<span class="spinner"></span>שולח...'; btn.disabled = true;
+  const btn=document.getElementById('rsvp-btn');
+  btn.innerHTML='<span class="spinner"></span>שולח...'; btn.disabled=true;
   try {
     await sheetsPost({action:'addRsvp', movie_id:movie.id, movie_title:movie.title, name, emoji:selectedEmoji});
-    rsvps[id].push({name, emoji:selectedEmoji}); saveRsvps();
+    rsvps[id].push({name, emoji:selectedEmoji});
+    cacheSet(CACHE_KEY_RSVPS, rsvps);
     localStorage.setItem('mn_me_'+movie.id, name);
     showToast('נרשמת! מחכות לך 🎉');
   } catch {
-    rsvps[id].push({name, emoji:selectedEmoji}); saveRsvps();
+    rsvps[id].push({name, emoji:selectedEmoji});
     localStorage.setItem('mn_me_'+movie.id, name);
     showToast('נרשמת! (ללא חיבור לרשת)');
   }
@@ -358,23 +415,22 @@ async function doRsvp() {
 
 // ---- תוכניה ----
 function renderSchedule() {
-  const range = getMoviesInRange();
-  const list  = document.getElementById('schedule-list');
+  const range=getMoviesInRange(), list=document.getElementById('schedule-list');
   if (!range.length) {
-    list.innerHTML = '<div class="empty-state"><i class="ti ti-calendar-off"></i><p>אין הקרנות בחודשיים הקרובים</p></div>';
+    list.innerHTML='<div class="empty-state"><i class="ti ti-calendar-off"></i><p>אין הקרנות בחודשיים הקרובים</p></div>';
     return;
   }
-  const next = getNextMovie();
-  const byMonth = {};
-  range.forEach(m => {
+  const next=getNextMovie();
+  const byMonth={};
+  range.forEach(m=>{
     const d=parseDate(m.date), k=`${d.getMonth()}_${d.getFullYear()}`;
     if (!byMonth[k]) byMonth[k]={label:`${MONTHS_HE[d.getMonth()]} ${d.getFullYear()}`,movies:[]};
     byMonth[k].movies.push(m);
   });
-  list.innerHTML = Object.values(byMonth).map(({label,movies:ms}) =>
+  list.innerHTML=Object.values(byMonth).map(({label,movies:ms})=>
     `<div class="month-section"><div class="month-label">${label}</div>${ms.map(m=>{
       const att=(rsvps[String(m.id)]||[]).length, isNext=next&&String(m.id)===String(next.id);
-      const thumb=m.poster?`<img src="${m.poster}" alt="${m.title}" onerror="this.parentElement.innerHTML='<i class=\\'ti ti-movie\\'></i>'">`:'<i class="ti ti-movie"></i>';
+      const thumb=m.poster?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.parentElement.innerHTML='<i class=\\'ti ti-movie\\'></i>'">`:'<i class="ti ti-movie"></i>';
       return `<div class="movie-card" onclick="goDetail('${m.id}')">
         <div class="movie-thumb">${thumb}</div>
         <div class="movie-info">
@@ -417,18 +473,10 @@ function checkPw() {
 async function loadAdminData() {
   const dot=document.getElementById('sync-dot'), txt=document.getElementById('sync-txt');
   txt.textContent='מתחברת לגוגל שיטס...';
-  try {
-    await Promise.all([loadMovies(), loadRsvps()]);
-    dot.classList.remove('off');
-    txt.textContent='מחוברת לגוגל שיטס ✓';
-  } catch {
-    dot.classList.add('off');
-    txt.textContent='לא ניתן להתחבר';
-  }
-  renderAdminStats();
-  renderAdminMoviesList();
-  renderHome();
-  renderSchedule();
+  const ok = await refreshFromSheets();
+  dot.classList.toggle('off', !ok);
+  txt.textContent = ok ? 'מחוברת לגוגל שיטס ✓' : 'לא ניתן להתחבר';
+  renderAdminStats(); renderAdminMoviesList(); renderHome(); renderSchedule();
 }
 
 function renderAdminStats() {
@@ -454,8 +502,8 @@ function renderAdminMoviesList() {
         <div class="amdate">${heDate(m.date)} • ${m.time}</div>
       </div>
       <div class="row-actions">
-        <button class="icon-btn edit" onclick="startEdit('${m.id}')" title="עריכה"><i class="ti ti-edit"></i></button>
-        <button class="icon-btn delete" onclick="deleteMovie('${m.id}')" title="מחיקה"><i class="ti ti-trash"></i></button>
+        <button class="icon-btn edit" onclick="startEdit('${m.id}')"><i class="ti ti-edit"></i></button>
+        <button class="icon-btn delete" onclick="deleteMovie('${m.id}')"><i class="ti ti-trash"></i></button>
       </div>
     </div>`).join('');
 }
@@ -496,19 +544,18 @@ async function addMovie() {
   if (!title||!date) { showToast('שם ותאריך הם שדות חובה'); return; }
   const btn=document.getElementById('form-submit-btn');
   btn.textContent='שומר...'; btn.disabled=true;
-  const newMovie = {
-    id: String(Date.now()), title, date,
-    time:   document.getElementById('a-time').value.trim()||'20:00',
-    poster: document.getElementById('a-poster').value.trim(),
-    genre:  document.getElementById('a-genre').value.trim(),
-    desc:   document.getElementById('a-desc').value.trim()
-  };
+  const newMovie={id:String(Date.now()),title,date,
+    time:document.getElementById('a-time').value.trim()||'20:00',
+    poster:document.getElementById('a-poster').value.trim(),
+    genre:document.getElementById('a-genre').value.trim(),
+    desc:document.getElementById('a-desc').value.trim()};
   try {
-    await sheetsPost({action:'addMovie', ...newMovie});
+    await sheetsPost({action:'addMovie',...newMovie});
     movies.push(newMovie);
+    cacheSet(CACHE_KEY_MOVIES, movies);
     ['a-title','a-date','a-time','a-poster','a-genre','a-desc'].forEach(id=>document.getElementById(id).value='');
     renderAdminMoviesList(); renderAdminStats(); renderSchedule(); renderHome();
-    showToast('הסרט נוסף לתוכניה ✓');
+    showToast('הסרט נוסף ✓');
   } catch { showToast('שגיאה בשמירה — נסי שוב'); }
   btn.textContent='הוסיפי סרט לתוכניה'; btn.disabled=false;
 }
@@ -519,17 +566,16 @@ async function saveEdit(id) {
   if (!title||!date) { showToast('שם ותאריך הם שדות חובה'); return; }
   const btn=document.getElementById('form-submit-btn');
   btn.textContent='שומר...'; btn.disabled=true;
-  const updated = {
-    id, title, date,
-    time:   document.getElementById('a-time').value.trim()||'20:00',
-    poster: document.getElementById('a-poster').value.trim(),
-    genre:  document.getElementById('a-genre').value.trim(),
-    desc:   document.getElementById('a-desc').value.trim()
-  };
+  const updated={id,title,date,
+    time:document.getElementById('a-time').value.trim()||'20:00',
+    poster:document.getElementById('a-poster').value.trim(),
+    genre:document.getElementById('a-genre').value.trim(),
+    desc:document.getElementById('a-desc').value.trim()};
   try {
-    await sheetsPost({action:'editMovie', ...updated});
+    await sheetsPost({action:'editMovie',...updated});
     const idx=movies.findIndex(m=>String(m.id)===String(id));
     if (idx!==-1) movies[idx]=updated;
+    cacheSet(CACHE_KEY_MOVIES, movies);
     cancelEdit();
     renderAdminMoviesList(); renderAdminStats(); renderSchedule(); renderHome();
     showToast('הסרט עודכן ✓');
@@ -541,14 +587,15 @@ async function deleteMovie(id) {
   const m=movies.find(x=>String(x.id)===String(id)); if(!m)return;
   if (!confirm(`למחוק את "${m.title}"?`)) return;
   try {
-    await sheetsPost({action:'deleteMovie', id});
+    await sheetsPost({action:'deleteMovie',id});
     movies=movies.filter(x=>String(x.id)!==String(id));
+    cacheSet(CACHE_KEY_MOVIES, movies);
     renderAdminMoviesList(); renderAdminStats(); renderSchedule(); renderHome();
     showToast('הסרט נמחק');
   } catch { showToast('שגיאה במחיקה — נסי שוב'); }
 }
 
-function clearAllRsvps() { rsvps={}; saveRsvps(); renderAdminStats(); renderHome(); showToast('ההרשמות המקומיות נמחקו'); }
+function clearAllRsvps() { rsvps={}; localStorage.removeItem(CACHE_KEY_RSVPS); renderAdminStats(); renderHome(); showToast('ההרשמות המקומיות נמחקו'); }
 
 function goPage(name,btn) {
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
@@ -565,14 +612,8 @@ function showToast(msg) {
   setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-// ---- אתחול ----
-(async function init() {
-  renderEmojis();
-  await loadMovies();
-  await loadRsvps();
-  renderHome();
-  renderSchedule();
-})();
+renderEmojis();
+initData();
 </script>
 </body>
 </html>
