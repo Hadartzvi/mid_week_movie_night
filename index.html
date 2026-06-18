@@ -134,13 +134,10 @@
     .profile-section h3 { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 0.5px solid var(--border); }
 
     /* TICKET GRID — 2 columns, landscape 3:1 */
-    /* TICKET GRID — 2 columns */
     .tickets-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .ticket-wrap { cursor: pointer; transition: transform 0.18s; }
-    .ticket-wrap:hover { transform: scale(1.03); }
-    .ticket-token { display: block; }
-    .ticket-token img { width: 100%; height: auto; display: block; object-fit: contain; }
-    .ticket-label { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ticket-token { aspect-ratio: 3/1; border-radius: var(--radius-md); overflow: hidden; cursor: pointer; position: relative; border: 0.5px solid var(--border); background: var(--bg2); transition: transform 0.18s; }
+    .ticket-token:hover { transform: scale(1.03); }
+    .ticket-token img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .ticket-token-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px; }
     .tt-emoji { font-size: 18px; }
     .tt-title { font-size: 8px; color: var(--text-muted); text-align: center; line-height: 1.3; font-weight: 500; }
@@ -168,7 +165,7 @@
     .ticket-fullscreen { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 300; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; padding: 24px 16px; }
     .ticket-fullscreen.open { opacity: 1; pointer-events: all; }
     .ticket-fs-inner { position: relative; width: 100%; max-width: 390px; }
-    .ticket-fs-img { width: 100%; height: auto; display: block; object-fit: contain; }
+    .ticket-fs-img { width: 100%; border-radius: var(--radius-lg); display: block; aspect-ratio: 3/1; object-fit: cover; }
     .ticket-fs-placeholder { width: 100%; aspect-ratio: 3/1; background: var(--bg2); border-radius: var(--radius-lg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
     .fs-emoji { font-size: 36px; }
     .fs-title { font-size: 18px; font-weight: 600; color: var(--text); }
@@ -214,6 +211,16 @@
     .stat-count { font-size: 14px; font-weight: 600; color: var(--purple); }
     .stat-count.full { color: #2c2c2a; }
     .stat-names { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+    .detail-att-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .detail-att-row h3 { font-size: 16px; font-weight: 600; margin-bottom: 0; }
+    .detail-rsvp-btn { padding: 7px 14px; border-radius: 20px; border: none; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+    .detail-rsvp-btn.join { background: var(--pink); color: white; }
+    .detail-rsvp-btn.join:hover { opacity: 0.88; }
+    .detail-rsvp-btn.cancel { background: none; border: 0.5px solid var(--border); color: var(--text-muted); }
+    .detail-rsvp-btn.cancel:hover { color: #A32D2D; border-color: #A32D2D; }
+    .detail-rsvp-btn.full { background: #2c2c2a; color: white; cursor: default; font-size: 11px; letter-spacing: 0.06em; }
+    .detail-rsvp-btn.login { background: none; border: 0.5px solid var(--border); color: var(--pink); }
 
     .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--purple-dark); color: white; padding: 11px 22px; border-radius: 22px; font-size: 14px; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; max-width: 90vw; }
     .toast.show { opacity: 1; }
@@ -265,7 +272,10 @@
       <h2 id="detail-title"></h2>
       <div class="detail-meta" id="detail-meta"></div>
       <p class="detail-desc" id="detail-desc"></p>
-      <h3 style="font-size:16px;font-weight:600;margin-bottom:14px" id="detail-att-title">מגיעים</h3>
+      <div class="detail-att-row">
+        <h3 id="detail-att-title">מגיעים</h3>
+        <button id="detail-rsvp-btn" class="detail-rsvp-btn join">אשר/י הגעה</button>
+      </div>
       <div class="bubbles-row" id="detail-bubbles"></div>
     </div>
   </div>
@@ -384,7 +394,7 @@ const TICKET_BASE  = 'https://hadartzvi.github.io/mid_week_movie_night/tickets/'
 const ADMIN_PW     = '5339';
 const CACHE_MOVIES = 'mn_cache_movies';
 const CACHE_RSVPS  = 'mn_cache_rsvps';
-const CACHE_TTL    = 5 * 60 * 1000;
+const CACHE_TTL    = 30 * 1000;
 const DEFAULT_MAX  = 11;
 const TICKETS_PREVIEW = 6;
 
@@ -655,6 +665,49 @@ function renderSchedule(){
   ).join('');
 }
 
+async function doDetailRsvp(movieId, movieTitle, ticketFilename){
+  if(!currentUser){goPage('auth',document.querySelectorAll('.nav-btn')[2]);return;}
+  const id=String(movieId);
+  if(!rsvps[id])rsvps[id]=[];
+  const movie=movies.find(m=>String(m.id)===id);
+  if(movie&&isFull(movie)){showToast('ההקרנה מלאה!');return;}
+  if(rsvps[id].find(p=>p.name===currentUser.username)){showToast('כבר נרשמת!');return;}
+  const btn=document.getElementById('detail-rsvp-btn');
+  btn.textContent='שולח...'; btn.disabled=true;
+  try{
+    await sheetsPost({action:'addRsvp',movie_id:movieId,movie_title:movieTitle,name:currentUser.username,emoji:currentUser.emoji,ticket_url:ticketFilename});
+    rsvps[id].push({name:currentUser.username,emoji:currentUser.emoji});
+    cacheSet(CACHE_RSVPS,rsvps);
+    showToast('נרשמת! מחכות לך 🎉');
+  }catch{
+    rsvps[id].push({name:currentUser.username,emoji:currentUser.emoji});
+    showToast('נרשמת! (ללא חיבור לרשת)');
+  }
+  goDetail(movieId);
+  renderHome();
+  renderSchedule();
+}
+
+async function doDetailCancel(movieId, movieTitle){
+  if(!currentUser)return;
+  if(!confirm('לבטל את ההגעה ל'+movieTitle+'?'))return;
+  const id=String(movieId);
+  const btn=document.getElementById('detail-rsvp-btn');
+  btn.textContent='מבטל...'; btn.disabled=true;
+  try{
+    await sheetsPost({action:'cancelRsvp',movie_id:movieId,name:currentUser.username});
+    if(rsvps[id])rsvps[id]=rsvps[id].filter(p=>p.name!==currentUser.username);
+    cacheSet(CACHE_RSVPS,rsvps);
+    showToast('ההגעה בוטלה');
+  }catch{
+    if(rsvps[id])rsvps[id]=rsvps[id].filter(p=>p.name!==currentUser.username);
+    showToast('ההגעה בוטלה (ללא חיבור לרשת)');
+  }
+  goDetail(movieId);
+  renderHome();
+  renderSchedule();
+}
+
 // ---- DETAIL ----
 function goDetail(id){
   const m=movies.find(x=>String(x.id)===String(id)); if(!m)return;
@@ -665,7 +718,33 @@ function goDetail(id){
   const dp=document.getElementById('detail-poster');
   const soldOutEl=full?'<div class="detail-sold-out">🎟️ SOLD OUT</div>':'';
   dp.innerHTML=(m.poster?`<img src="${m.poster}" style="width:100%;height:100%;object-fit:cover" alt="${m.title}">`:'<i class="ti ti-movie"></i>')+soldOutEl;
-  document.getElementById('detail-att-title').textContent=`מגיעים (${att.length}/${max})`;
+  const attTitle = document.getElementById('detail-att-title');
+  attTitle.textContent=`מגיעים (${att.length}/${max})`;
+
+  // כפתור הרשמה בדף פרטים
+  const detailBtn = document.getElementById('detail-rsvp-btn');
+  const alreadyIn = currentUser && att.find(p=>p.name===currentUser.username);
+  if(!currentUser){
+    detailBtn.textContent='התחברי להרשמה';
+    detailBtn.className='detail-rsvp-btn login';
+    detailBtn.onclick=()=>goPage('auth',document.querySelectorAll('.nav-btn')[2]);
+    detailBtn.disabled=false;
+  } else if(alreadyIn){
+    detailBtn.textContent='בטלי הגעה';
+    detailBtn.className='detail-rsvp-btn cancel';
+    detailBtn.onclick=()=>doDetailCancel(m.id, m.title);
+    detailBtn.disabled=false;
+  } else if(full){
+    detailBtn.textContent='🎟️ SOLD OUT';
+    detailBtn.className='detail-rsvp-btn full';
+    detailBtn.disabled=true;
+  } else {
+    detailBtn.textContent='אשר/י הגעה';
+    detailBtn.className='detail-rsvp-btn join';
+    detailBtn.onclick=()=>doDetailRsvp(m.id, m.title, m.ticket_filename||'');
+    detailBtn.disabled=false;
+  }
+
   document.getElementById('detail-bubbles').innerHTML=att.length===0
     ?'<p style="font-size:13px;color:var(--text-muted)">עדיין אין הרשמות</p>'
     :att.map(p=>`<div class="person-bubble"><div class="person-av">${p.emoji}</div><div class="person-name">${p.name}</div></div>`).join('');
