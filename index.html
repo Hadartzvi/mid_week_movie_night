@@ -12,6 +12,7 @@
       --purple: #533AB7; --purple-dark: #3C3489;
       --bg: #ffffff; --bg2: #f5f5f3; --text: #1a1a18; --text-muted: #6b6b67;
       --border: rgba(0,0,0,0.12); --radius-md: 8px; --radius-lg: 12px;
+      --ticket-base: https://hadartzvi.github.io/mid_week_movie_night/tickets/;
     }
     @media (prefers-color-scheme: dark) {
       :root { --bg: #1a1a18; --bg2: #242422; --text: #f0ede8; --text-muted: #999990; --border: rgba(255,255,255,0.12); --pink-light: #3a1525; }
@@ -19,7 +20,6 @@
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg2); color: var(--text); min-height: 100dvh; }
     .app { width: 100%; max-width: 430px; margin: 0 auto; min-height: 100dvh; background: var(--bg); }
 
-    /* NAV */
     .nav { display: flex; border-bottom: 0.5px solid var(--border); background: var(--bg); position: sticky; top: 0; z-index: 100; }
     .nav-btn { flex: 1; padding: 14px 4px 10px; background: none; border: none; cursor: pointer; font-size: 11px; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 4px; transition: color 0.2s; }
     .nav-btn i { font-size: 22px; }
@@ -30,7 +30,6 @@
     .page { display: none; padding-bottom: 90px; }
     .page.active { display: block; }
 
-    /* SKELETON */
     .skel { background: var(--bg2); border-radius: var(--radius-md); animation: pulse 1.4s ease-in-out infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
     .skel-poster { width: 200px; height: 300px; border-radius: var(--radius-lg); margin: 0 auto 28px; }
@@ -59,18 +58,13 @@
     .rsvp-area { padding: 0 16px 20px; }
     .rsvp-box { background: var(--bg2); border-radius: var(--radius-lg); padding: 18px; border: 0.5px solid var(--border); }
     .rsvp-box h3 { font-size: 16px; font-weight: 600; margin-bottom: 14px; }
-    .rsvp-input { width: 100%; padding: 11px 14px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 15px; margin-bottom: 14px; outline: none; }
-    .rsvp-input:focus { border-color: var(--pink); }
-    .emoji-row { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
-    .emoji-opt { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--border); background: var(--bg); cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .emoji-opt.selected { border-color: var(--pink); background: var(--pink-light); }
     .rsvp-btn { width: 100%; padding: 13px; border-radius: var(--radius-md); border: none; background: var(--pink); color: white; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
     .rsvp-btn:hover { opacity: 0.88; }
     .rsvp-btn:disabled { background: var(--bg2); color: var(--text-muted); border: 0.5px solid var(--border); cursor: default; opacity: 1; }
     .rsvp-btn.sold-out-btn { background: #2c2c2a; color: white; cursor: default; letter-spacing: 0.08em; }
-    .login-prompt { font-size: 13px; color: var(--text-muted); text-align: center; margin-top: 10px; }
+    .login-prompt { font-size: 13px; color: var(--text-muted); text-align: center; padding: 4px 0; }
     .login-prompt a { color: var(--pink); cursor: pointer; text-decoration: underline; }
-    .capacity-bar-wrap { margin-top: 10px; }
+    .capacity-bar-wrap { margin-top: 12px; }
     .capacity-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
     .capacity-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
     .capacity-fill { height: 100%; background: var(--pink); border-radius: 2px; transition: width 0.4s; }
@@ -93,7 +87,7 @@
     .attendees-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; background: var(--pink-light); color: var(--pink-dark); padding: 3px 9px; border-radius: 12px; margin-top: 6px; font-weight: 500; }
     .attendees-pill.full { background: #2c2c2a; color: white; }
     .next-badge { font-size: 10px; background: var(--pink); color: white; padding: 2px 7px; border-radius: 10px; margin-left: 6px; font-weight: 600; }
-    .sold-out-badge { font-size: 10px; background: #2c2c2a; color: white; padding: 2px 7px; border-radius: 10px; margin-left: 6px; font-weight: 700; letter-spacing: 0.06em; }
+    .sold-out-badge { font-size: 10px; background: #2c2c2a; color: white; padding: 2px 7px; border-radius: 10px; margin-left: 6px; font-weight: 700; }
     .empty-state { padding: 40px 16px; text-align: center; color: var(--text-muted); }
     .empty-state i { font-size: 48px; margin-bottom: 12px; display: block; }
 
@@ -112,7 +106,7 @@
     .person-name { font-size: 10px; color: var(--text-muted); max-width: 54px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
     /* AUTH */
-    .auth-page { padding: 40px 16px; display: flex; flex-direction: column; align-items: center; gap: 0; }
+    .auth-page { padding: 40px 16px; display: flex; flex-direction: column; align-items: center; }
     .auth-icon { font-size: 48px; margin-bottom: 16px; }
     .auth-page h2 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
     .auth-page p { font-size: 14px; color: var(--text-muted); margin-bottom: 28px; text-align: center; }
@@ -121,8 +115,10 @@
     .auth-field label { font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 5px; }
     .auth-field input { width: 100%; padding: 11px 14px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 15px; outline: none; }
     .auth-field input:focus { border-color: var(--pink); }
-    .auth-emoji-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
-    .auth-btn { width: 100%; padding: 13px; border-radius: var(--radius-md); border: none; background: var(--pink); color: white; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 4px; }
+    .auth-emoji-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .emoji-opt { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--border); background: var(--bg); cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .emoji-opt.selected { border-color: var(--pink); background: var(--pink-light); }
+    .auth-btn { width: 100%; padding: 13px; border-radius: var(--radius-md); border: none; background: var(--pink); color: white; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 14px; }
     .auth-switch { text-align: center; margin-top: 16px; font-size: 13px; color: var(--text-muted); }
     .auth-switch a { color: var(--pink); cursor: pointer; text-decoration: underline; }
 
@@ -134,18 +130,23 @@
     .profile-edit-btn { padding: 8px 18px; border-radius: 20px; border: 0.5px solid var(--border); background: var(--bg2); color: var(--text); font-size: 13px; cursor: pointer; }
     .profile-section { padding: 0 16px; margin-bottom: 28px; }
     .profile-section h3 { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 0.5px solid var(--border); }
-    .tickets-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .ticket-token { aspect-ratio: 2/3; border-radius: var(--radius-md); overflow: hidden; cursor: pointer; position: relative; border: 0.5px solid var(--border); background: var(--bg2); transition: transform 0.2s; }
-    .ticket-token:hover { transform: scale(1.04); }
-    .ticket-token img { width: 100%; height: 100%; object-fit: cover; }
-    .ticket-token-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 8px; }
-    .ticket-token-placeholder .tt-emoji { font-size: 24px; }
-    .ticket-token-placeholder .tt-title { font-size: 9px; color: var(--text-muted); text-align: center; line-height: 1.3; }
-    .ticket-token-placeholder .tt-date { font-size: 8px; color: var(--text-muted); }
-    .no-tickets { text-align: center; color: var(--text-muted); font-size: 14px; padding: 20px 0; }
+
+    /* TICKET GRID — 2 columns, landscape 3:1 */
+    .tickets-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .ticket-token { aspect-ratio: 3/1; border-radius: var(--radius-md); overflow: hidden; cursor: pointer; position: relative; border: 0.5px solid var(--border); background: var(--bg2); transition: transform 0.18s; }
+    .ticket-token:hover { transform: scale(1.03); }
+    .ticket-token img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ticket-token-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px; }
+    .tt-emoji { font-size: 18px; }
+    .tt-title { font-size: 8px; color: var(--text-muted); text-align: center; line-height: 1.3; font-weight: 500; }
+    .tt-date  { font-size: 7px; color: var(--text-muted); }
+
+    .show-more-btn { width: 100%; padding: 11px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: none; color: var(--text-muted); font-size: 13px; cursor: pointer; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .show-more-btn:hover { background: var(--bg2); }
+    .no-tickets { text-align: center; color: var(--text-muted); font-size: 14px; padding: 20px 0; grid-column: span 2; line-height: 1.6; }
     .logout-btn { width: 100%; padding: 12px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: var(--bg); color: var(--text-muted); font-size: 14px; cursor: pointer; }
 
-    /* EDIT PROFILE MODAL */
+    /* EDIT MODAL */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
     .modal-overlay.open { opacity: 1; pointer-events: all; }
     .modal-sheet { width: 100%; max-width: 430px; background: var(--bg); border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 24px 16px 40px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); }
@@ -159,14 +160,14 @@
     .modal-cancel-btn { width: 100%; padding: 13px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: none; color: var(--text-muted); font-size: 14px; cursor: pointer; margin-top: 8px; }
 
     /* TICKET FULLSCREEN */
-    .ticket-fullscreen { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 300; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; padding: 24px; }
+    .ticket-fullscreen { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 300; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; padding: 24px 16px; }
     .ticket-fullscreen.open { opacity: 1; pointer-events: all; }
-    .ticket-fs-inner { position: relative; max-width: 320px; width: 100%; }
-    .ticket-fs-img { width: 100%; border-radius: var(--radius-lg); display: block; }
-    .ticket-fs-placeholder { width: 100%; aspect-ratio: 2/3; background: var(--bg2); border-radius: var(--radius-lg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
-    .ticket-fs-placeholder .fs-emoji { font-size: 56px; }
-    .ticket-fs-placeholder .fs-title { font-size: 20px; font-weight: 600; color: var(--text); }
-    .ticket-fs-placeholder .fs-date { font-size: 14px; color: var(--text-muted); }
+    .ticket-fs-inner { position: relative; width: 100%; max-width: 390px; }
+    .ticket-fs-img { width: 100%; border-radius: var(--radius-lg); display: block; aspect-ratio: 3/1; object-fit: cover; }
+    .ticket-fs-placeholder { width: 100%; aspect-ratio: 3/1; background: var(--bg2); border-radius: var(--radius-lg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+    .fs-emoji { font-size: 36px; }
+    .fs-title { font-size: 18px; font-weight: 600; color: var(--text); }
+    .fs-date  { font-size: 13px; color: var(--text-muted); }
     .ticket-fs-close { position: absolute; top: -14px; right: -14px; width: 36px; height: 36px; border-radius: 50%; background: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #1a1a18; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
 
     /* ADMIN */
@@ -183,6 +184,7 @@
     .field-group input, .field-group textarea { width: 100%; padding: 10px 12px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: var(--bg); color: var(--text); font-size: 14px; outline: none; font-family: inherit; }
     .field-group input:focus, .field-group textarea:focus { border-color: var(--purple); }
     .field-group textarea { min-height: 75px; resize: vertical; }
+    .field-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
     .add-btn  { width: 100%; padding: 12px; border-radius: var(--radius-md); border: none; background: var(--purple); color: white; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px; }
     .save-btn { width: 100%; padding: 12px; border-radius: var(--radius-md); border: none; background: #3B6D11; color: white; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px; }
     .cancel-btn { width: 100%; padding: 12px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: var(--bg); color: var(--text-muted); font-size: 14px; cursor: pointer; margin-top: 8px; }
@@ -219,7 +221,7 @@
   <nav class="nav">
     <button class="nav-btn active" onclick="goPage('home',this)"><i class="ti ti-home"></i><span>בית</span><div class="nav-dot"></div></button>
     <button class="nav-btn" onclick="goPage('schedule',this)"><i class="ti ti-calendar"></i><span>תוכניה</span><div class="nav-dot"></div></button>
-    <button class="nav-btn" id="nav-profile-btn" onclick="goPage('profile',this)"><i class="ti ti-user"></i><span>פרופיל</span><div class="nav-dot"></div></button>
+    <button class="nav-btn" onclick="goPage('profile',this)"><i class="ti ti-user"></i><span>פרופיל</span><div class="nav-dot"></div></button>
     <button class="nav-btn" onclick="goPage('admin',this)"><i class="ti ti-settings"></i><span>ניהול</span><div class="nav-dot"></div></button>
   </nav>
 
@@ -282,9 +284,7 @@
           <button class="auth-btn" onclick="doLogin()">התחברות</button>
         </div>
       </div>
-      <div class="auth-switch" id="auth-switch">
-        כבר רשומה? <a onclick="toggleAuthMode()">התחברות</a>
-      </div>
+      <div class="auth-switch" id="auth-switch">כבר רשומה? <a onclick="toggleAuthMode()">התחברות</a></div>
     </div>
   </div>
 
@@ -299,6 +299,9 @@
     <div class="profile-section">
       <h3>הסרטים שלי 🎟️</h3>
       <div class="tickets-grid" id="tickets-grid"></div>
+      <button class="show-more-btn" id="show-more-btn" style="display:none" onclick="showAllTickets()">
+        <i class="ti ti-chevron-down"></i> ראי עוד
+      </button>
     </div>
     <div style="padding: 0 16px 16px">
       <button class="logout-btn" onclick="doLogout()"><i class="ti ti-logout" style="font-size:14px"></i> התנתקות</button>
@@ -331,7 +334,11 @@
           <div class="field-group"><label>ז'אנר</label><input id="a-genre" placeholder="דרמה / קומדיה / ..." /></div>
           <div class="field-group"><label>תיאור קצר</label><textarea id="a-desc" placeholder="על מה הסרט..."></textarea></div>
           <div class="field-group"><label>מקסימום משתתפים</label><input id="a-max" type="number" placeholder="11" min="1" max="100" /></div>
-          <div class="field-group"><label>קישור לכרטיס PNG (800×1200)</label><input id="a-ticket" placeholder="https://drive.google.com/..." /></div>
+          <div class="field-group">
+            <label>שם קובץ כרטיס (PNG)</label>
+            <input id="a-ticket" placeholder="parasite.png" />
+            <div class="field-hint">העלי את הקובץ לתיקיית tickets/ ב-GitHub ורשמי רק את שם הקובץ</div>
+          </div>
           <button class="add-btn" id="form-submit-btn" onclick="submitMovieForm()">הוסיפי סרט לתוכניה</button>
           <button class="cancel-btn" id="form-cancel-btn" style="display:none" onclick="cancelEdit()">ביטול עריכה</button>
         </div>
@@ -343,7 +350,7 @@
   </div>
 </div>
 
-<!-- EDIT PROFILE MODAL -->
+<!-- EDIT MODAL -->
 <div class="modal-overlay" id="edit-modal" onclick="if(event.target===this)closeEditModal()">
   <div class="modal-sheet">
     <h3>עריכת פרופיל</h3>
@@ -368,11 +375,13 @@
 
 <script>
 const SHEETS_URL   = 'https://script.google.com/macros/s/AKfycbxBYtt3gJ26RA2p2VFK6vYzx-Z_uQr4-lDXLLWf0nOgKoAlibV3XCSJQo6x3SnbBu8d/exec';
+const TICKET_BASE  = 'https://hadartzvi.github.io/mid_week_movie_night/tickets/';
 const ADMIN_PW     = '5339';
 const CACHE_MOVIES = 'mn_cache_movies';
 const CACHE_RSVPS  = 'mn_cache_rsvps';
 const CACHE_TTL    = 5 * 60 * 1000;
 const DEFAULT_MAX  = 11;
+const TICKETS_PREVIEW = 6;
 
 const EMOJIS    = ['🐱','🦊','🐼','🦋','🌙','⭐','🎸','🌸','🦄','🍕','🎩','🌈','🐸','🦁','🐧','🦉','🍦','🎃','🌺','🎵'];
 const MONTHS_HE = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
@@ -387,9 +396,11 @@ let currentUser = JSON.parse(localStorage.getItem('mn_user') || 'null');
 let selectedEmoji = EMOJIS[0];
 let selectedEditEmoji = null;
 let authMode = 'register';
+let showingAllTickets = false;
 
 function getMax(m) { return parseInt(m.max_attendees) || DEFAULT_MAX; }
 function isFull(m) { return (rsvps[String(m.id)]||[]).length >= getMax(m); }
+function ticketUrl(filename) { return filename ? TICKET_BASE + filename : ''; }
 
 function cacheGet(key) {
   try { const r=JSON.parse(localStorage.getItem(key)); return r&&Date.now()-r.ts<CACHE_TTL?r.data:null; } catch{return null;}
@@ -411,7 +422,7 @@ function parseRsvps(data) {
     const id=String(row.movie_id);
     if(!f[id])f[id]=[];
     if(row.name&&!f[id].find(p=>p.name===row.name))
-      f[id].push({name:row.name,emoji:row.emoji||'⭐',ticket_url:row.ticket_url||''});
+      f[id].push({name:row.name,emoji:row.emoji||'⭐'});
   });
   return f;
 }
@@ -456,21 +467,21 @@ function getMoviesInRange(){
   return [...movies].filter(m=>{const d=parseDate(m.date);return d>=now&&d<=end;}).sort((a,b)=>parseDate(a.date)-parseDate(b.date));
 }
 
-// ---- AUTH EMOJIS ----
-function renderAuthEmojis(containerId, current, onSelect) {
+// ---- EMOJIS ----
+function renderEmojiPicker(containerId, current, callback) {
   document.getElementById(containerId).innerHTML = EMOJIS.map(e=>
-    `<button class="emoji-opt${e===current?' selected':''}" onclick="(${onSelect})('${e}')">${e}</button>`
+    `<button class="emoji-opt${e===current?' selected':''}" onclick="(${callback.toString()})('${e}')">${e}</button>`
   ).join('');
 }
 
 // ---- AUTH ----
 function toggleAuthMode() {
-  authMode = authMode==='register'?'login':'register';
-  document.getElementById('auth-register-form').style.display = authMode==='register'?'block':'none';
-  document.getElementById('auth-login-form').style.display    = authMode==='login'?'block':'none';
-  document.getElementById('auth-title').textContent    = authMode==='register'?'הצטרפות':'התחברות';
-  document.getElementById('auth-subtitle').textContent = authMode==='register'?'צרי פרופיל אישי כדי לעקוב אחרי הסרטים שראית':'ברוכה השבה! 🎬';
-  document.getElementById('auth-switch').innerHTML = authMode==='register'
+  authMode=authMode==='register'?'login':'register';
+  document.getElementById('auth-register-form').style.display=authMode==='register'?'block':'none';
+  document.getElementById('auth-login-form').style.display=authMode==='login'?'block':'none';
+  document.getElementById('auth-title').textContent=authMode==='register'?'הצטרפות':'התחברות';
+  document.getElementById('auth-subtitle').textContent=authMode==='register'?'צרי פרופיל אישי כדי לעקוב אחרי הסרטים שראית':'ברוכה השבה! 🎬';
+  document.getElementById('auth-switch').innerHTML=authMode==='register'
     ?'כבר רשומה? <a onclick="toggleAuthMode()">התחברות</a>'
     :'עדיין לא רשומה? <a onclick="toggleAuthMode()">הצטרפות</a>';
 }
@@ -487,10 +498,9 @@ async function doRegister() {
       currentUser={username,emoji:selectedEmoji,password};
       localStorage.setItem('mn_user',JSON.stringify(currentUser));
       showToast('ברוכה הבאה '+username+' 🎉');
-      renderProfile();
       goPage('profile',document.querySelectorAll('.nav-btn')[2]);
-    } else { showToast(res.message||'שגיאה ברישום'); }
-  } catch { showToast('שגיאת חיבור — נסי שוב'); }
+    } else showToast(res.message||'שגיאה ברישום');
+  } catch{showToast('שגיאת חיבור — נסי שוב');}
   btn.textContent='הצטרפות 🎉'; btn.disabled=false;
 }
 
@@ -506,43 +516,36 @@ async function doLogin() {
       currentUser={username:res.username,emoji:res.emoji,password};
       localStorage.setItem('mn_user',JSON.stringify(currentUser));
       showToast('ברוכה השבה '+res.username+' 🎬');
-      renderProfile();
       goPage('profile',document.querySelectorAll('.nav-btn')[2]);
-    } else { showToast(res.message||'שגיאה בהתחברות'); }
-  } catch { showToast('שגיאת חיבור — נסי שוב'); }
+    } else showToast(res.message||'שגיאה בהתחברות');
+  } catch{showToast('שגיאת חיבור — נסי שוב');}
   btn.textContent='התחברות'; btn.disabled=false;
 }
 
-function doLogout() {
-  currentUser=null;
-  localStorage.removeItem('mn_user');
+function doLogout(){
+  currentUser=null; localStorage.removeItem('mn_user');
   goPage('auth',document.querySelectorAll('.nav-btn')[2]);
   showToast('להתראות! 👋');
 }
 
 // ---- RSVP ----
-function renderRsvpBox() {
-  const movie=getNextMovie();
-  const box=document.getElementById('rsvp-content');
+function renderRsvpBox(){
+  const movie=getNextMovie(), box=document.getElementById('rsvp-content');
   if(!movie){box.innerHTML='';return;}
-  const att=rsvps[String(movie.id)]||[];
-  const max=getMax(movie);
-  const full=att.length>=max;
+  const att=rsvps[String(movie.id)]||[], max=getMax(movie), full=att.length>=max;
   const already=currentUser&&att.find(p=>p.name===currentUser.username);
-
-  if(!currentUser) {
-    box.innerHTML=`
-      <p class="login-prompt">כדי להירשם להקרנה <a onclick="goPage('auth',document.querySelectorAll('.nav-btn')[2])">התחברי / הצטרפי</a></p>`;
-  } else if(already) {
+  if(!currentUser){
+    box.innerHTML=`<p class="login-prompt">כדי להירשם <a onclick="goPage('auth',document.querySelectorAll('.nav-btn')[2])">התחברי / הצטרפי</a></p>`;
+  } else if(already){
     box.innerHTML=`<button class="rsvp-btn" disabled>✓ אישרת הגעה!</button>`;
-  } else if(full) {
+  } else if(full){
     box.innerHTML=`<button class="rsvp-btn sold-out-btn" disabled>🎟️ SOLD OUT</button>`;
   } else {
     box.innerHTML=`<button class="rsvp-btn" onclick="doRsvp()">אשר/י הגעה</button>`;
   }
 }
 
-async function doRsvp() {
+async function doRsvp(){
   if(!currentUser){goPage('auth',document.querySelectorAll('.nav-btn')[2]);return;}
   const movie=getNextMovie(); if(!movie)return;
   const id=String(movie.id);
@@ -551,21 +554,20 @@ async function doRsvp() {
   if(rsvps[id].find(p=>p.name===currentUser.username)){showToast('כבר נרשמת!');return;}
   const btn=document.querySelector('#rsvp-content .rsvp-btn');
   btn.innerHTML='<span class="spinner"></span>שולח...'; btn.disabled=true;
-  try {
-    await sheetsPost({action:'addRsvp',movie_id:movie.id,movie_title:movie.title,name:currentUser.username,emoji:currentUser.emoji,ticket_url:movie.ticket_url||''});
-    rsvps[id].push({name:currentUser.username,emoji:currentUser.emoji,ticket_url:movie.ticket_url||''});
+  try{
+    await sheetsPost({action:'addRsvp',movie_id:movie.id,movie_title:movie.title,name:currentUser.username,emoji:currentUser.emoji,ticket_url:movie.ticket_filename||''});
+    rsvps[id].push({name:currentUser.username,emoji:currentUser.emoji});
     cacheSet(CACHE_RSVPS,rsvps);
-    localStorage.setItem('mn_me_'+movie.id,currentUser.username);
     showToast('נרשמת! מחכות לך 🎉');
-  } catch {
-    rsvps[id].push({name:currentUser.username,emoji:currentUser.emoji,ticket_url:''});
+  } catch{
+    rsvps[id].push({name:currentUser.username,emoji:currentUser.emoji});
     showToast('נרשמת! (ללא חיבור לרשת)');
   }
   renderHome();
 }
 
 // ---- HOME ----
-function renderHome() {
+function renderHome(){
   const movie=getNextMovie();
   if(!movie){
     document.getElementById('hero-title').textContent='אין הקרנות קרובות';
@@ -576,8 +578,7 @@ function renderHome() {
   }
   document.getElementById('hero-title').textContent=movie.title;
   document.getElementById('hero-date').textContent=`${heDate(movie.date)} • ${movie.time}`;
-  const att=rsvps[String(movie.id)]||[];
-  const max=getMax(movie), full=att.length>=max;
+  const att=rsvps[String(movie.id)]||[], max=getMax(movie), full=att.length>=max;
   const bubbles=att.slice(0,8).map((p,i)=>{
     const pos=BUBBLE_POS[i%BUBBLE_POS.length];
     const s=Object.entries(pos).map(([k,v])=>`${k}:${v}`).join(';');
@@ -598,19 +599,19 @@ function renderHome() {
 }
 
 // ---- SCHEDULE ----
-function renderSchedule() {
-  const range=getMoviesInRange(),list=document.getElementById('schedule-list');
+function renderSchedule(){
+  const range=getMoviesInRange(), list=document.getElementById('schedule-list');
   if(!range.length){list.innerHTML='<div class="empty-state"><i class="ti ti-calendar-off"></i><p>אין הקרנות בחודשיים הקרובים</p></div>';return;}
   const next=getNextMovie();
   const byMonth={};
   range.forEach(m=>{
-    const d=parseDate(m.date),k=`${d.getMonth()}_${d.getFullYear()}`;
+    const d=parseDate(m.date), k=`${d.getMonth()}_${d.getFullYear()}`;
     if(!byMonth[k])byMonth[k]={label:`${MONTHS_HE[d.getMonth()]} ${d.getFullYear()}`,movies:[]};
     byMonth[k].movies.push(m);
   });
   list.innerHTML=Object.values(byMonth).map(({label,movies:ms})=>
     `<div class="month-section"><div class="month-label">${label}</div>${ms.map(m=>{
-      const att=(rsvps[String(m.id)]||[]).length,max=getMax(m),full=att>=max;
+      const att=(rsvps[String(m.id)]||[]).length, max=getMax(m), full=att>=max;
       const isNext=next&&String(m.id)===String(next.id);
       const thumb=m.poster?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.parentElement.innerHTML='<i class=\\'ti ti-movie\\'></i>'">`:'<i class="ti ti-movie"></i>';
       const soldOutOverlay=full?'<div class="thumb-sold-out">SOLD OUT</div>':'';
@@ -629,12 +630,12 @@ function renderSchedule() {
 }
 
 // ---- DETAIL ----
-function goDetail(id) {
+function goDetail(id){
   const m=movies.find(x=>String(x.id)===String(id)); if(!m)return;
   document.getElementById('detail-title').textContent=m.title;
   document.getElementById('detail-meta').textContent=`${heDate(m.date)} • ${m.time}${m.genre?' • '+m.genre:''}`;
   document.getElementById('detail-desc').textContent=m.desc||'';
-  const att=rsvps[String(m.id)]||[],max=getMax(m),full=att.length>=max;
+  const att=rsvps[String(m.id)]||[], max=getMax(m), full=att.length>=max;
   const dp=document.getElementById('detail-poster');
   const soldOutEl=full?'<div class="detail-sold-out">🎟️ SOLD OUT</div>':'';
   dp.innerHTML=(m.poster?`<img src="${m.poster}" style="width:100%;height:100%;object-fit:cover" alt="${m.title}">`:'<i class="ti ti-movie"></i>')+soldOutEl;
@@ -647,30 +648,40 @@ function goDetail(id) {
 }
 
 // ---- PROFILE ----
-function renderProfile() {
-  if(!currentUser) return;
+function renderProfile(){
+  if(!currentUser)return;
   document.getElementById('profile-avatar').textContent=currentUser.emoji||'⭐';
   document.getElementById('profile-name').textContent=currentUser.username;
+  showingAllTickets=false;
   renderTickets();
 }
 
-function renderTickets() {
-  const grid=document.getElementById('tickets-grid');
-  const myMovies=[];
+function getMyMovies(){
+  const mine=[];
   Object.entries(rsvps).forEach(([movieId,attendees])=>{
     if(attendees.find(p=>p.name===currentUser.username)){
       const movie=movies.find(m=>String(m.id)===String(movieId));
-      if(movie) myMovies.push({movie,ticket_url:movie.ticket_url||''});
+      if(movie) mine.push(movie);
     }
   });
-  if(!myMovies.length){
-    grid.innerHTML='<p class="no-tickets" style="grid-column:span 3">עדיין לא נרשמת להקרנה — <br>אנחנו מחכות לך! 🎬</p>';
-    return;
+  return mine.sort((a,b)=>parseDate(b.date)-parseDate(a.date));
+}
+
+function renderTickets(){
+  const grid=document.getElementById('tickets-grid');
+  const showMoreBtn=document.getElementById('show-more-btn');
+  const allMovies=getMyMovies();
+  if(!allMovies.length){
+    grid.innerHTML='<p class="no-tickets">עדיין לא נרשמת להקרנה —<br>אנחנו מחכות לך! 🎬</p>';
+    showMoreBtn.style.display='none'; return;
   }
-  grid.innerHTML=myMovies.map(({movie,ticket_url})=>{
-    if(ticket_url){
-      return `<div class="ticket-token" onclick="openTicket('${ticket_url}','${movie.title}','${movie.date}')">
-        <img src="${ticket_url}" alt="${movie.title}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=ticket-token-placeholder><div class=tt-emoji>🎟️</div><div class=tt-title>${movie.title}</div><div class=tt-date>${heDate(movie.date)}</div></div>'">
+  const toShow=showingAllTickets?allMovies:allMovies.slice(0,TICKETS_PREVIEW);
+  grid.innerHTML=toShow.map(movie=>{
+    const url=ticketUrl(movie.ticket_filename);
+    if(url){
+      return `<div class="ticket-token" onclick="openTicket('${url}','${movie.title}','${movie.date}')">
+        <img src="${url}" alt="${movie.title}" loading="lazy"
+          onerror="this.outerHTML='<div class=ticket-token-placeholder><div class=tt-emoji>🎟️</div><div class=tt-title>${movie.title}</div><div class=tt-date>${heDate(movie.date)}</div></div>'">
       </div>`;
     }
     return `<div class="ticket-token" onclick="openTicket('','${movie.title}','${movie.date}')">
@@ -681,9 +692,20 @@ function renderTickets() {
       </div>
     </div>`;
   }).join('');
+  if(!showingAllTickets && allMovies.length>TICKETS_PREVIEW){
+    showMoreBtn.style.display='flex';
+    showMoreBtn.innerHTML=`<i class="ti ti-chevron-down"></i> ראי עוד (${allMovies.length-TICKETS_PREVIEW} סרטים נוספים)`;
+  } else {
+    showMoreBtn.style.display='none';
+  }
 }
 
-function openTicket(url, title, date) {
+function showAllTickets(){
+  showingAllTickets=true;
+  renderTickets();
+}
+
+function openTicket(url,title,date){
   const fs=document.getElementById('ticket-fullscreen');
   const content=document.getElementById('ticket-fs-content');
   if(url){
@@ -699,40 +721,38 @@ function openTicket(url, title, date) {
 }
 function closeTicket(){document.getElementById('ticket-fullscreen').classList.remove('open');}
 
-// ---- EDIT PROFILE ----
-function openEditModal() {
+// ---- EDIT PROFILE MODAL ----
+function openEditModal(){
   selectedEditEmoji=currentUser.emoji||'⭐';
-  renderAuthEmojis('edit-emoji-row', selectedEditEmoji, (e)=>{selectedEditEmoji=e;renderAuthEmojis('edit-emoji-row',e,(e2)=>{selectedEditEmoji=e2;renderAuthEmojis('edit-emoji-row',e2,()=>{});});});
+  renderEmojiPicker('edit-emoji-row', selectedEditEmoji, function(e){
+    selectedEditEmoji=e;
+    renderEmojiPicker('edit-emoji-row',e,function(e2){selectedEditEmoji=e2;});
+  });
   document.getElementById('edit-modal').classList.add('open');
 }
 function closeEditModal(){document.getElementById('edit-modal').classList.remove('open');}
 
-async function saveProfile() {
+async function saveProfile(){
   const currentPw=document.getElementById('edit-current-pw').value;
   if(!currentPw){showToast('הכניסי את הסיסמה הנוכחית');return;}
   const newUsername=document.getElementById('edit-username').value.trim();
   const newPw=document.getElementById('edit-new-pw').value;
   const btn=document.querySelector('.modal-save-btn');
   btn.textContent='שומרת...'; btn.disabled=true;
-  try {
+  try{
     const res=await sheetsPost({
-      action:'updateUser',
-      username:currentUser.username,
-      password:currentPw,
-      new_username:newUsername||undefined,
-      new_password:newPw||undefined,
-      new_emoji:selectedEditEmoji||undefined
+      action:'updateUser', username:currentUser.username, password:currentPw,
+      new_username:newUsername||undefined, new_password:newPw||undefined, new_emoji:selectedEditEmoji||undefined
     });
     if(res.status==='ok'){
-      if(newUsername) currentUser.username=newUsername;
-      if(newPw) currentUser.password=newPw;
-      if(selectedEditEmoji) currentUser.emoji=selectedEditEmoji;
+      if(newUsername)currentUser.username=newUsername;
+      if(newPw)currentUser.password=newPw;
+      if(selectedEditEmoji)currentUser.emoji=selectedEditEmoji;
       localStorage.setItem('mn_user',JSON.stringify(currentUser));
-      closeEditModal();
-      renderProfile();
+      closeEditModal(); renderProfile();
       showToast('הפרופיל עודכן ✓');
-    } else { showToast(res.message||'שגיאה בעדכון'); }
-  } catch { showToast('שגיאת חיבור — נסי שוב'); }
+    } else showToast(res.message||'שגיאה בעדכון');
+  } catch{showToast('שגיאת חיבור — נסי שוב');}
   btn.textContent='שמרי שינויים'; btn.disabled=false;
 }
 
@@ -746,7 +766,7 @@ function checkPw(){
 }
 
 async function loadAdminData(){
-  const dot=document.getElementById('sync-dot'),txt=document.getElementById('sync-txt');
+  const dot=document.getElementById('sync-dot'), txt=document.getElementById('sync-txt');
   txt.textContent='מתחברת לגוגל שיטס...';
   const ok=await refreshFromSheets();
   dot.classList.toggle('off',!ok);
@@ -755,10 +775,10 @@ async function loadAdminData(){
 }
 
 function renderAdminStats(){
-  const range=getMoviesInRange(),container=document.getElementById('admin-stats');
+  const range=getMoviesInRange(), container=document.getElementById('admin-stats');
   if(!range.length){container.innerHTML='<p style="font-size:13px;color:var(--text-muted)">אין הקרנות בחודשיים הקרובים</p>';return;}
   container.innerHTML=range.map(m=>{
-    const att=rsvps[String(m.id)]||[],max=getMax(m),full=att.length>=max;
+    const att=rsvps[String(m.id)]||[], max=getMax(m), full=att.length>=max;
     return `<div class="stat-row">
       <div class="stat-top"><span class="stat-movie">${m.title}${full?' 🎟️':''}</span><span class="stat-count${full?' full':''}">${att.length}/${max}</span></div>
       <div class="stat-names">${att.length?att.map(p=>`${p.emoji} ${p.name}`).join(' · '):'אין הרשמות עדיין'}</div>
@@ -774,7 +794,7 @@ function renderAdminMoviesList(){
     <div class="admin-movie-row">
       <div class="admin-movie-info">
         <div class="amtitle">${m.title}</div>
-        <div class="amdate">${heDate(m.date)} • ${m.time} • מקס׳ ${getMax(m)}</div>
+        <div class="amdate">${heDate(m.date)} • ${m.time} • מקס׳ ${getMax(m)}${m.ticket_filename?' • 🎟️':''}</div>
       </div>
       <div class="row-actions">
         <button class="icon-btn edit" onclick="startEdit('${m.id}')"><i class="ti ti-edit"></i></button>
@@ -793,7 +813,7 @@ function startEdit(id){
   document.getElementById('a-genre').value=m.genre||'';
   document.getElementById('a-desc').value=m.desc||'';
   document.getElementById('a-max').value=getMax(m);
-  document.getElementById('a-ticket').value=m.ticket_url||'';
+  document.getElementById('a-ticket').value=m.ticket_filename||'';
   document.getElementById('form-section-title').textContent='עריכת סרט';
   document.getElementById('form-submit-btn').textContent='שמרי שינויים';
   document.getElementById('form-submit-btn').className='save-btn';
@@ -827,9 +847,9 @@ async function addMovie(){
     genre:document.getElementById('a-genre').value.trim(),
     desc:document.getElementById('a-desc').value.trim(),
     max_attendees:document.getElementById('a-max').value||DEFAULT_MAX,
-    ticket_url:document.getElementById('a-ticket').value.trim()};
+    ticket_filename:document.getElementById('a-ticket').value.trim()};
   try{
-    await sheetsPost({action:'addMovie',...newMovie});
+    await sheetsPost({action:'addMovie',...newMovie,ticket_url:newMovie.ticket_filename});
     movies.push(newMovie); cacheSet(CACHE_MOVIES,movies);
     ['a-title','a-date','a-time','a-poster','a-genre','a-desc','a-max','a-ticket'].forEach(id=>document.getElementById(id).value='');
     renderAdminMoviesList(); renderAdminStats(); renderSchedule(); renderHome();
@@ -850,9 +870,9 @@ async function saveEdit(id){
     genre:document.getElementById('a-genre').value.trim(),
     desc:document.getElementById('a-desc').value.trim(),
     max_attendees:document.getElementById('a-max').value||DEFAULT_MAX,
-    ticket_url:document.getElementById('a-ticket').value.trim()};
+    ticket_filename:document.getElementById('a-ticket').value.trim()};
   try{
-    await sheetsPost({action:'editMovie',...updated});
+    await sheetsPost({action:'editMovie',...updated,ticket_url:updated.ticket_filename});
     const idx=movies.findIndex(m=>String(m.id)===String(id));
     if(idx!==-1)movies[idx]=updated; cacheSet(CACHE_MOVIES,movies);
     cancelEdit();
@@ -880,18 +900,22 @@ function goPage(name,btn){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   if(btn)btn.classList.add('active');
-  if(name==='profile'&&!currentUser) name='auth';
-  document.getElementById('page-'+name).classList.add('active');
-  if(name==='home')renderHome();
-  if(name==='schedule')renderSchedule();
-  if(name==='profile'){renderProfile();renderTickets();}
-  if(name==='auth'){
+  let target=name;
+  if(name==='profile'&&!currentUser) target='auth';
+  document.getElementById('page-'+target).classList.add('active');
+  if(target==='home')renderHome();
+  if(target==='schedule')renderSchedule();
+  if(target==='profile'){renderProfile();}
+  if(target==='auth'){
     authMode='register';
     document.getElementById('auth-register-form').style.display='block';
     document.getElementById('auth-login-form').style.display='none';
     document.getElementById('auth-title').textContent='הצטרפות';
     document.getElementById('auth-switch').innerHTML='כבר רשומה? <a onclick="toggleAuthMode()">התחברות</a>';
-    renderAuthEmojis('auth-emoji-row',selectedEmoji,(e)=>{selectedEmoji=e;renderAuthEmojis('auth-emoji-row',e,()=>{});});
+    renderEmojiPicker('auth-emoji-row', selectedEmoji, function(e){
+      selectedEmoji=e;
+      renderEmojiPicker('auth-emoji-row',e,function(e2){selectedEmoji=e2;});
+    });
   }
 }
 
@@ -902,7 +926,10 @@ function showToast(msg){
 }
 
 // ---- INIT ----
-renderAuthEmojis('auth-emoji-row',selectedEmoji,(e)=>{selectedEmoji=e;renderAuthEmojis('auth-emoji-row',e,()=>{});});
+renderEmojiPicker('auth-emoji-row', selectedEmoji, function(e){
+  selectedEmoji=e;
+  renderEmojiPicker('auth-emoji-row',e,function(e2){selectedEmoji=e2;});
+});
 if(currentUser) renderProfile();
 initData();
 </script>
