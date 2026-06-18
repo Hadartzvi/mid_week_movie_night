@@ -133,15 +133,17 @@
     .profile-section { padding: 0 16px; margin-bottom: 28px; }
     .profile-section h3 { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 0.5px solid var(--border); }
 
-    /* TICKET GRID — 2 columns, landscape 3:1 */
+    /* TICKET GRID — 2 columns */
     .tickets-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .ticket-token { aspect-ratio: 3/1; border-radius: var(--radius-md); overflow: hidden; cursor: pointer; position: relative; border: 0.5px solid var(--border); background: var(--bg2); transition: transform 0.18s; }
-    .ticket-token:hover { transform: scale(1.03); }
-    .ticket-token img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .ticket-token-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 6px; }
-    .tt-emoji { font-size: 18px; }
-    .tt-title { font-size: 8px; color: var(--text-muted); text-align: center; line-height: 1.3; font-weight: 500; }
-    .tt-date  { font-size: 7px; color: var(--text-muted); }
+    .ticket-wrap { cursor: pointer; transition: transform 0.18s; }
+    .ticket-wrap:hover { transform: scale(1.03); }
+    .ticket-token { display: block; }
+    .ticket-token img { width: 100%; height: auto; display: block; object-fit: contain; }
+    .ticket-label { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ticket-token-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px; background: var(--bg2); border-radius: var(--radius-md); }
+    .tt-emoji { font-size: 24px; }
+    .tt-title { font-size: 10px; color: var(--text-muted); text-align: center; line-height: 1.3; font-weight: 500; }
+    .tt-date  { font-size: 9px; color: var(--text-muted); }
 
     .show-more-btn { width: 100%; padding: 11px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: none; color: var(--text-muted); font-size: 13px; cursor: pointer; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .show-more-btn:hover { background: var(--bg2); }
@@ -165,7 +167,7 @@
     .ticket-fullscreen { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 300; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; padding: 24px 16px; }
     .ticket-fullscreen.open { opacity: 1; pointer-events: all; }
     .ticket-fs-inner { position: relative; width: 100%; max-width: 390px; }
-    .ticket-fs-img { width: 100%; border-radius: var(--radius-lg); display: block; aspect-ratio: 3/1; object-fit: cover; }
+    .ticket-fs-img { width: 100%; height: auto; display: block; object-fit: contain; }
     .ticket-fs-placeholder { width: 100%; aspect-ratio: 3/1; background: var(--bg2); border-radius: var(--radius-lg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
     .fs-emoji { font-size: 36px; }
     .fs-title { font-size: 18px; font-weight: 600; color: var(--text); }
@@ -359,6 +361,7 @@
         </div>
       </div>
       <div class="admin-section">
+        <button class="add-btn" style="background:#2c5f8a;margin-bottom:10px" onclick="refreshCache()"><i class="ti ti-refresh" style="font-size:14px;vertical-align:middle;margin-left:6px"></i> רענן תוכן מגוגל שיטס</button>
         <button class="danger-btn" onclick="if(confirm('למחוק את כל ההרשמות המקומיות?'))clearAllRsvps()">מחיקת הרשמות מקומיות</button>
       </div>
     </div>
@@ -394,7 +397,7 @@ const TICKET_BASE  = 'https://hadartzvi.github.io/mid_week_movie_night/tickets/'
 const ADMIN_PW     = '5339';
 const CACHE_MOVIES = 'mn_cache_movies';
 const CACHE_RSVPS  = 'mn_cache_rsvps';
-const CACHE_TTL    = 30 * 1000;
+const CACHE_TTL    = 5 * 60 * 1000;
 const DEFAULT_MAX  = 11;
 const TICKETS_PREVIEW = 6;
 
@@ -1000,6 +1003,17 @@ async function deleteMovie(id){
     renderAdminMoviesList(); renderAdminStats(); renderSchedule(); renderHome();
     showToast('הסרט נמחק');
   }catch{showToast('שגיאה במחיקה — נסי שוב');}
+}
+
+async function refreshCache(){
+  localStorage.removeItem(CACHE_MOVIES);
+  localStorage.removeItem(CACHE_RSVPS);
+  const btn = document.querySelector('[onclick="refreshCache()"]');
+  if(btn){ btn.textContent='מרענן...'; btn.disabled=true; }
+  const ok = await refreshFromSheets();
+  renderAdminStats(); renderAdminMoviesList(); renderHome(); renderSchedule();
+  if(btn){ btn.innerHTML='<i class="ti ti-refresh" style="font-size:14px;vertical-align:middle;margin-left:6px"></i> רענן תוכן מגוגל שיטס'; btn.disabled=false; }
+  showToast(ok ? 'התוכן עודכן ✓' : 'שגיאת חיבור');
 }
 
 function clearAllRsvps(){rsvps={};localStorage.removeItem(CACHE_RSVPS);renderAdminStats();renderHome();showToast('ההרשמות המקומיות נמחקו');}
