@@ -163,7 +163,7 @@
     .ticket-fullscreen { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 300; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; padding: 16px; }
     .ticket-fullscreen.open { opacity: 1; pointer-events: all; }
     .ticket-fs-inner { position: relative; width: 100%; max-width: min(90vw, calc(90vh * 2.5)); }
-    .ticket-fs-img { width: 100%; border-radius: var(--radius-lg); display: block; aspect-ratio: 3/1; object-fit: cover; }
+    .ticket-fs-img { width: 100%; height: auto; display: block; object-fit: contain; }
     .ticket-fs-placeholder { width: 100%; aspect-ratio: 3/1; background: var(--bg2); border-radius: var(--radius-lg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
     .fs-emoji { font-size: 36px; }
     .fs-title { font-size: 18px; font-weight: 600; color: var(--text); }
