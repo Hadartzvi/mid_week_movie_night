@@ -432,7 +432,7 @@ async function initData() {
   if(cr){rsvps=cr;renderHome();renderSchedule();}
   try {
     const [md,rd]=await Promise.all([sheetsGet('movies'),sheetsGet('rsvps')]);
-    movies=md.map(m=>({...m,id:String(m.id)}));
+    movies=md.map(m=>({...m,id:String(m.id),ticket_filename:m.ticket_filename||m.ticket_url||''}));
     rsvps=parseRsvps(rd);
     cacheSet(CACHE_MOVIES,movies); cacheSet(CACHE_RSVPS,rsvps);
     renderHome(); renderSchedule();
@@ -442,7 +442,7 @@ async function initData() {
 async function refreshFromSheets() {
   try {
     const [md,rd]=await Promise.all([sheetsGet('movies'),sheetsGet('rsvps')]);
-    movies=md.map(m=>({...m,id:String(m.id)}));
+    movies=md.map(m=>({...m,id:String(m.id),ticket_filename:m.ticket_filename||m.ticket_url||''}));
     rsvps=parseRsvps(rd);
     cacheSet(CACHE_MOVIES,movies); cacheSet(CACHE_RSVPS,rsvps);
     return true;
