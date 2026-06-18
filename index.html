@@ -62,6 +62,8 @@
     .rsvp-btn:hover { opacity: 0.88; }
     .rsvp-btn:disabled { background: var(--bg2); color: var(--text-muted); border: 0.5px solid var(--border); cursor: default; opacity: 1; }
     .rsvp-btn.sold-out-btn { background: #2c2c2a; color: white; cursor: default; letter-spacing: 0.08em; }
+    .cancel-rsvp-btn { width: 100%; padding: 10px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: none; color: var(--text-muted); font-size: 13px; cursor: pointer; margin-top: 8px; }
+    .cancel-rsvp-btn:hover { color: #A32D2D; border-color: #A32D2D; }
     .login-prompt { font-size: 13px; color: var(--text-muted); text-align: center; padding: 4px 0; }
     .login-prompt a { color: var(--pink); cursor: pointer; text-decoration: underline; }
     .capacity-bar-wrap { margin-top: 12px; }
@@ -160,10 +162,10 @@
     .modal-cancel-btn { width: 100%; padding: 13px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: none; color: var(--text-muted); font-size: 14px; cursor: pointer; margin-top: 8px; }
 
     /* TICKET FULLSCREEN */
-    .ticket-fullscreen { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 300; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; padding: 16px; }
+    .ticket-fullscreen { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 300; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; padding: 24px 16px; }
     .ticket-fullscreen.open { opacity: 1; pointer-events: all; }
-    .ticket-fs-inner { position: relative; width: 100%; max-width: min(90vw, calc(90vh * 2.5)); }
-    .ticket-fs-img { width: 100%; height: auto; display: block; object-fit: contain; }
+    .ticket-fs-inner { position: relative; width: 100%; max-width: 390px; }
+    .ticket-fs-img { width: 100%; border-radius: var(--radius-lg); display: block; aspect-ratio: 3/1; object-fit: cover; }
     .ticket-fs-placeholder { width: 100%; aspect-ratio: 3/1; background: var(--bg2); border-radius: var(--radius-lg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
     .fs-emoji { font-size: 36px; }
     .fs-title { font-size: 18px; font-weight: 600; color: var(--text); }
@@ -374,7 +376,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const SHEETS_URL   = 'https://script.google.com/macros/s/AKfycbxBYtt3gJ26RA2p2VFK6vYzx-Z_uQr4-lDXLLWf0nOgKoAlibV3XCSJQo6x3SnbBu8d/exec';
+const SHEETS_URL   = 'https://script.google.com/macros/s/AKfycbz_6CeGAeNfXFDdPoKQDMlM4fHBy1Hh1L4wNYF-_O0S2PvVBzlWla2WwqxLlB-FuZ0k/exec';
 const TICKET_BASE  = 'https://hadartzvi.github.io/mid_week_movie_night/tickets/';
 const ADMIN_PW     = '5339';
 const CACHE_MOVIES = 'mn_cache_movies';
@@ -537,7 +539,9 @@ function renderRsvpBox(){
   if(!currentUser){
     box.innerHTML=`<p class="login-prompt">כדי להירשם <a onclick="goPage('auth',document.querySelectorAll('.nav-btn')[2])">התחברי / הצטרפי</a></p>`;
   } else if(already){
-    box.innerHTML=`<button class="rsvp-btn" disabled>✓ אישרת הגעה!</button>`;
+    box.innerHTML=`
+      <button class="rsvp-btn" disabled>✓ אישרת הגעה!</button>
+      <button class="cancel-rsvp-btn" onclick="doCancelRsvp()">ביטול הגעה</button>`;
   } else if(full){
     box.innerHTML=`<button class="rsvp-btn sold-out-btn" disabled>🎟️ SOLD OUT</button>`;
   } else {
@@ -562,6 +566,25 @@ async function doRsvp(){
   } catch{
     rsvps[id].push({name:currentUser.username,emoji:currentUser.emoji});
     showToast('נרשמת! (ללא חיבור לרשת)');
+  }
+  renderHome();
+}
+
+async function doCancelRsvp(){
+  if(!currentUser)return;
+  const movie=getNextMovie(); if(!movie)return;
+  if(!confirm('לבטל את ההגעה ל'+movie.title+'?'))return;
+  const id=String(movie.id);
+  const btn=document.querySelector('.cancel-rsvp-btn');
+  if(btn){btn.textContent='מבטל...';btn.disabled=true;}
+  try{
+    await sheetsPost({action:'cancelRsvp',movie_id:movie.id,name:currentUser.username});
+    if(rsvps[id])rsvps[id]=rsvps[id].filter(p=>p.name!==currentUser.username);
+    cacheSet(CACHE_RSVPS,rsvps);
+    showToast('ההגעה בוטלה');
+  }catch{
+    if(rsvps[id])rsvps[id]=rsvps[id].filter(p=>p.name!==currentUser.username);
+    showToast('ההגעה בוטלה (ללא חיבור לרשת)');
   }
   renderHome();
 }
