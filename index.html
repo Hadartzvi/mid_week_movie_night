@@ -381,13 +381,14 @@
         <div class="sync-row"><div class="sync-dot off" id="sync-dot"></div><span class="sync-txt" id="sync-txt">מתחברת...</span></div>
       </div>
       <div class="admin-section"><h3>מי מגיע</h3><div class="admin-card" id="admin-stats"><p style="font-size:13px;color:var(--text-muted)">טוען...</p></div></div>
+      <div class="admin-section"><h3>רשימת צפייה 👀</h3><div class="admin-card" id="admin-watchlist"><p style="font-size:13px;color:var(--text-muted)">טוען...</p></div></div>
       <div class="admin-section"><h3>סרטים בתוכניה</h3><div class="admin-card" id="admin-movies-list"><p style="font-size:13px;color:var(--text-muted)">טוען...</p></div></div>
       <div class="admin-section">
         <h3 id="form-section-title">הוספת סרט חדש</h3>
         <div class="admin-card">
           <input type="hidden" id="edit-id" value="" />
           <div class="field-group"><label>שם הסרט *</label><input id="a-title" placeholder="שם הסרט..." /></div>
-          <div class="field-group"><label>תאריך * (DD/MM/YYYY)</label><input id="a-date" placeholder="20/07/2025" /></div>
+          <div class="field-group"><label>תאריך (DD/MM/YYYY) — השאירי ריק לרשימת צפייה</label><input id="a-date" placeholder="20/07/2025" /></div>
           <div class="field-group"><label>שעה</label><input id="a-time" placeholder="20:00" /></div>
           <div class="field-group"><label>קישור לפוסטר</label><input id="a-poster" placeholder="https://..." /></div>
           <div class="field-group"><label>ז'אנר</label><input id="a-genre" placeholder="דרמה / קומדיה / ..." /></div>
@@ -529,15 +530,20 @@ function parseDate(s) {
   if(str.includes('/')){const[d,m,y]=str.split('/').map(Number);return new Date(y,m-1,d);}
   return new Date(str);
 }
+function isWatchlist(m){ return !m.date || !String(m.date).trim(); }
 function heDate(s){const d=parseDate(s);return `${d.getDate()} ב${MONTHS_HE[d.getMonth()]} ${d.getFullYear()}`;}
+function getScheduledMovies(){ return movies.filter(m=>!isWatchlist(m)); }
+function getWatchlistMovies(){ return movies.filter(isWatchlist); }
 function getNextMovie(){
+  const scheduled=getScheduledMovies();
+  if(!scheduled.length) return null;
   const now=new Date();now.setHours(0,0,0,0);
-  return [...movies].filter(m=>parseDate(m.date)>=now).sort((a,b)=>parseDate(a.date)-parseDate(b.date))[0]||movies[movies.length-1];
+  return [...scheduled].filter(m=>parseDate(m.date)>=now).sort((a,b)=>parseDate(a.date)-parseDate(b.date))[0]||scheduled[scheduled.length-1];
 }
 function getMoviesInRange(){
   const now=new Date();now.setHours(0,0,0,0);
   const end=new Date(now);end.setMonth(end.getMonth()+2);
-  return [...movies].filter(m=>{const d=parseDate(m.date);return d>=now&&d<=end;}).sort((a,b)=>parseDate(a.date)-parseDate(b.date));
+  return getScheduledMovies().filter(m=>{const d=parseDate(m.date);return d>=now&&d<=end;}).sort((a,b)=>parseDate(a.date)-parseDate(b.date));
 }
 
 // ---- EMOJIS ----
@@ -722,7 +728,7 @@ function renderCalendar(){
   const monthLabel=`${MONTHS_HE[month]} ${year}`;
 
   const moviesByDay={};
-  movies.forEach(m=>{
+  getScheduledMovies().forEach(m=>{
     const d=parseDate(m.date);
     if(d.getFullYear()===year && d.getMonth()===month){
       moviesByDay[d.getDate()]=m;
@@ -788,7 +794,7 @@ function buildIcsHref(movie){
 // ---- SCHEDULE ----
 function renderSchedule(){
   const isAdmin = checkAdminAccess();
-  const range = isAdmin ? [...movies].sort((a,b)=>parseDate(a.date)-parseDate(b.date)) : getMoviesInRange();
+  const range = isAdmin ? [...getScheduledMovies()].sort((a,b)=>parseDate(a.date)-parseDate(b.date)) : getMoviesInRange();
   const list=document.getElementById('schedule-list');
   if(!range.length){list.innerHTML='<div class="empty-state"><i class="ti ti-calendar-off"></i><p>אין הקרנות בחודשיים הקרובים</p></div>';return;}
   const next=getNextMovie();
@@ -1040,7 +1046,7 @@ async function loadAdminData(){
   const ok=await refreshFromSheets();
   dot.classList.toggle('off',!ok);
   txt.textContent=ok?'מחוברת לגוגל שיטס ✓':'לא ניתן להתחבר';
-  renderAdminStats(); renderAdminMoviesList(); renderHome(); renderSchedule();
+  renderAdminStats(); renderAdminMoviesList(); renderAdminWatchlist(); renderHome(); renderSchedule();
 }
 
 function renderAdminStats(){
@@ -1055,10 +1061,27 @@ function renderAdminStats(){
   }).join('');
 }
 
+function renderAdminWatchlist(){
+  const container=document.getElementById('admin-watchlist');
+  const watchlist=getWatchlistMovies();
+  if(!watchlist.length){container.innerHTML='<p style="font-size:13px;color:var(--text-muted)">אין סרטים ברשימת הצפייה</p>';return;}
+  container.innerHTML=watchlist.map(m=>`
+    <div class="admin-movie-row">
+      <div class="admin-movie-info">
+        <div class="amtitle">${m.title}</div>
+        <div class="amdate">ללא תאריך — לא בתוכניה${m.genre?' • '+m.genre:''}</div>
+      </div>
+      <div class="row-actions">
+        <button class="icon-btn edit" onclick="startEdit('${m.id}')"><i class="ti ti-edit"></i></button>
+        <button class="icon-btn delete" onclick="deleteMovie('${m.id}')"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`).join('');
+}
+
 function renderAdminMoviesList(){
   const container=document.getElementById('admin-movies-list');
-  const sorted=[...movies].sort((a,b)=>parseDate(a.date)-parseDate(b.date));
-  if(!sorted.length){container.innerHTML='<p style="font-size:13px;color:var(--text-muted)">אין סרטים — הוסיפי את הראשון!</p>';return;}
+  const sorted=[...getScheduledMovies()].sort((a,b)=>parseDate(a.date)-parseDate(b.date));
+  if(!sorted.length){container.innerHTML='<p style="font-size:13px;color:var(--text-muted)">אין סרטים בתוכניה עדיין</p>';return;}
   container.innerHTML=sorted.map(m=>`
     <div class="admin-movie-row">
       <div class="admin-movie-info">
@@ -1107,7 +1130,7 @@ function submitMovieForm(){
 async function addMovie(){
   const title=document.getElementById('a-title').value.trim();
   const date=document.getElementById('a-date').value.trim();
-  if(!title||!date){showToast('שם ותאריך הם שדות חובה');return;}
+  if(!title){showToast('שם הסרט הוא שדה חובה');return;}
   const btn=document.getElementById('form-submit-btn');
   btn.textContent='שומר...'; btn.disabled=true;
   const newMovie={id:String(Date.now()),title,date,
@@ -1121,8 +1144,8 @@ async function addMovie(){
     await sheetsPost({action:'addMovie',...newMovie,ticket_url:newMovie.ticket_filename});
     movies.push(newMovie); cacheSet(CACHE_MOVIES,movies);
     ['a-title','a-date','a-time','a-poster','a-genre','a-desc','a-max','a-ticket'].forEach(id=>document.getElementById(id).value='');
-    renderAdminMoviesList(); renderAdminStats(); renderSchedule(); renderHome();
-    showToast('הסרט נוסף ✓');
+    renderAdminMoviesList(); renderAdminWatchlist(); renderAdminStats(); renderSchedule(); renderHome();
+    showToast(date ? 'הסרט נוסף לתוכניה ✓' : 'הסרט נוסף לרשימת הצפייה ✓');
   }catch{showToast('שגיאה בשמירה — נסי שוב');}
   btn.textContent='הוסיפי סרט לתוכניה'; btn.disabled=false;
 }
@@ -1130,7 +1153,7 @@ async function addMovie(){
 async function saveEdit(id){
   const title=document.getElementById('a-title').value.trim();
   const date=document.getElementById('a-date').value.trim();
-  if(!title||!date){showToast('שם ותאריך הם שדות חובה');return;}
+  if(!title){showToast('שם הסרט הוא שדה חובה');return;}
   const btn=document.getElementById('form-submit-btn');
   btn.textContent='שומר...'; btn.disabled=true;
   const updated={id,title,date,
@@ -1145,8 +1168,8 @@ async function saveEdit(id){
     const idx=movies.findIndex(m=>String(m.id)===String(id));
     if(idx!==-1)movies[idx]=updated; cacheSet(CACHE_MOVIES,movies);
     cancelEdit();
-    renderAdminMoviesList(); renderAdminStats(); renderSchedule(); renderHome();
-    showToast('הסרט עודכן ✓');
+    renderAdminMoviesList(); renderAdminWatchlist(); renderAdminStats(); renderSchedule(); renderHome();
+    showToast(date ? 'הסרט עודכן ונוסף לתוכניה ✓' : 'הסרט עודכן ✓');
   }catch{showToast('שגיאה בעדכון — נסי שוב');}
   btn.disabled=false;
 }
@@ -1157,7 +1180,7 @@ async function deleteMovie(id){
   try{
     await sheetsPost({action:'deleteMovie',id});
     movies=movies.filter(x=>String(x.id)!==String(id)); cacheSet(CACHE_MOVIES,movies);
-    renderAdminMoviesList(); renderAdminStats(); renderSchedule(); renderHome();
+    renderAdminMoviesList(); renderAdminWatchlist(); renderAdminStats(); renderSchedule(); renderHome();
     showToast('הסרט נמחק');
   }catch{showToast('שגיאה במחיקה — נסי שוב');}
 }
@@ -1168,7 +1191,7 @@ async function refreshCache(){
   const btn = document.querySelector('[onclick="refreshCache()"]');
   if(btn){ btn.textContent='מרענן...'; btn.disabled=true; }
   const ok = await refreshFromSheets();
-  renderAdminStats(); renderAdminMoviesList(); renderHome(); renderSchedule();
+  renderAdminStats(); renderAdminMoviesList(); renderAdminWatchlist(); renderHome(); renderSchedule();
   if(btn){ btn.innerHTML='<i class="ti ti-refresh" style="font-size:14px;vertical-align:middle;margin-left:6px"></i> רענן תוכן מגוגל שיטס'; btn.disabled=false; }
   showToast(ok ? 'התוכן עודכן ✓' : 'שגיאת חיבור');
 }
