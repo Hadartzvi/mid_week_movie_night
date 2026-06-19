@@ -260,6 +260,24 @@
     .security-modal p b { color: var(--text); }
     .security-modal-btn { width: 100%; padding: 12px; border-radius: var(--radius-md); border: none; background: var(--pink); color: white; font-size: 14px; font-weight: 600; cursor: pointer; }
 
+    .splash-overlay { position: fixed; inset: 0; z-index: 1000; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 0 24px; animation: splashFadeOut 0.5s ease 1.6s forwards; }
+    .splash-overlay.hidden { display: none; }
+    @keyframes splashFadeOut { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+    @keyframes splashPopIn { 0%{transform:scale(0.85);opacity:0} 60%{transform:scale(1.05);opacity:1} 100%{transform:scale(1);opacity:1} }
+    @keyframes splashBubbleFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+    @keyframes splashLoadBar { 0%{transform:translateX(-100%)} 50%{transform:translateX(0)} 100%{transform:translateX(100%)} }
+    @keyframes splashSlideUp { 0%{opacity:0; transform:translateY(8px)} 100%{opacity:1; transform:translateY(0)} }
+    .splash-kicker { font-size: 11px; letter-spacing: 0.2em; color: var(--pink); font-weight: 500; animation: splashSlideUp 0.5s ease 0.1s both; }
+    .splash-title { font-size: 26px; font-weight: 500; color: var(--text); animation: splashSlideUp 0.5s ease 0.2s both; }
+    .splash-divider { width: 40px; height: 1px; background: var(--border); animation: splashSlideUp 0.5s ease 0.3s both; }
+    .splash-icon-wrap { position: relative; width: 80px; height: 80px; animation: splashSlideUp 0.5s ease 0.35s both; }
+    .splash-icon-circle { width: 80px; height: 80px; border-radius: 50%; background: var(--bg2); display: flex; align-items: center; justify-content: center; font-size: 34px; animation: splashPopIn 0.6s cubic-bezier(0.32,1.4,0.5,1) 0.35s both; }
+    .splash-bubble-1 { position: absolute; top: -6px; right: -10px; width: 26px; height: 26px; border-radius: 50%; background: var(--pink-light); border: 2px solid var(--bg); display: flex; align-items: center; justify-content: center; font-size: 13px; animation: splashBubbleFloat 2s ease-in-out infinite; }
+    .splash-bubble-2 { position: absolute; bottom: -4px; left: -10px; width: 22px; height: 22px; border-radius: 50%; background: var(--bg2); border: 2px solid var(--bg); display: flex; align-items: center; justify-content: center; font-size: 11px; animation: splashBubbleFloat 2.4s ease-in-out infinite 0.4s; }
+    .splash-welcome { font-size: 14px; font-weight: 500; color: var(--text); text-align: center; line-height: 1.5; animation: splashSlideUp 0.5s ease 0.5s both; }
+    .splash-bar-track { width: 36px; height: 3px; border-radius: 2px; background: var(--border); overflow: hidden; position: relative; animation: splashSlideUp 0.5s ease 0.6s both; }
+    .splash-bar-fill { position: absolute; inset: 0; background: var(--pink); border-radius: 2px; animation: splashLoadBar 1.4s ease-in-out infinite; }
+
     .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--purple-dark); color: white; padding: 11px 22px; border-radius: 22px; font-size: 14px; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; max-width: 90vw; }
     .toast.show { opacity: 1; }
     .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.35); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
@@ -267,6 +285,18 @@
   </style>
 </head>
 <body>
+<div class="splash-overlay" id="splash-overlay">
+  <div class="splash-kicker">CINEMA · קולנוע</div>
+  <div class="splash-title">הדרצבי</div>
+  <div class="splash-divider"></div>
+  <div class="splash-icon-wrap">
+    <div class="splash-icon-circle">🎬</div>
+    <div class="splash-bubble-1">🍿</div>
+    <div class="splash-bubble-2">🌙</div>
+  </div>
+  <div class="splash-welcome">ברוכות הבאות למועדון<br>ערב סרט באמצע שבוע!</div>
+  <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
+</div>
 <div class="app">
   <nav class="nav" id="main-nav">
     <button class="nav-btn active" onclick="goPage('home',this)"><i class="ti ti-home"></i><span>בית</span><div class="nav-dot"></div></button>
@@ -1262,6 +1292,11 @@ if(checkAdminAccess()){
   document.getElementById('admin-nav-btn').style.display='flex';
   document.getElementById('page-admin').style.display='block';
   goPage('admin', document.getElementById('admin-nav-btn'));
+  const splash=document.getElementById('splash-overlay');
+  if(splash) splash.remove();
+} else {
+  const splash=document.getElementById('splash-overlay');
+  if(splash) setTimeout(()=>splash.remove(), 2200);
 }
 </script>
 </body>
