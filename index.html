@@ -94,7 +94,7 @@
     .cal-empty-month { text-align: center; color: var(--text-muted); font-size: 13px; padding: 30px 0; }
 
     /* ADD TO CALENDAR BUTTON */
-    .add-to-cal-btn { width: 100%; padding: 10px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: none; color: var(--text-muted); font-size: 13px; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; box-sizing: border-box; }
+    .add-to-cal-btn { width: 100%; padding: 10px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: none; color: var(--text-muted); font-size: 13px; cursor: pointer; margin-top: 10px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; box-sizing: border-box; }
     .add-to-cal-btn:hover { background: var(--bg2); color: var(--text); }
 
     /* SCHEDULE */
@@ -160,14 +160,14 @@
     .profile-section { padding: 0 16px; margin-bottom: 28px; }
     .profile-section h3 { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 0.5px solid var(--border); }
 
-    /* TICKET GRID — fixed width, auto height, no cropping */
+    /* TICKET GRID — fixed width, fixed aspect-ratio container, no cropping */
     .tickets-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-    .ticket-wrap { cursor: pointer; transition: transform 0.18s; display: flex; flex-direction: column; align-items: center; }
+    .ticket-wrap { cursor: pointer; transition: transform 0.18s; display: flex; flex-direction: column; align-items: center; width: 100%; }
     .ticket-wrap:hover { transform: scale(1.03); }
-    .ticket-token { width: 100%; display: flex; align-items: center; justify-content: center; min-height: 60px; }
-    .ticket-token img { width: 100%; height: auto; max-height: 140px; display: block; object-fit: contain; }
+    .ticket-token { width: 100%; aspect-ratio: 5/2; display: flex; align-items: center; justify-content: center; background: var(--bg2); border-radius: var(--radius-md); overflow: hidden; }
+    .ticket-token img { width: 100%; height: 100%; display: block; object-fit: contain; }
     .ticket-label { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
-    .ticket-token-placeholder { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px 10px; background: var(--bg2); border-radius: var(--radius-md); aspect-ratio: 5/2; }
+    .ticket-token-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px 10px; }
     .tt-emoji { font-size: 24px; }
     .tt-title { font-size: 10px; color: var(--text-muted); text-align: center; line-height: 1.3; font-weight: 500; }
     .tt-date  { font-size: 9px; color: var(--text-muted); }
