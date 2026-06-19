@@ -449,7 +449,7 @@
 <script>
 const SHEETS_URL   = 'https://script.google.com/macros/s/AKfycbwNchkyjebhNBMLgIISMcO3b5xlBbHHw69mPg2HKUt3TJP7MqgsEyA8yPWAZFrJVVE4/exec';
 const TICKET_BASE  = 'https://hadartzvi.github.io/mid_week_movie_night/tickets/';
-const ADMIN_PW     = '1111';
+const ADMIN_PW     = '5339';
 const CACHE_MOVIES = 'mn_cache_movies';
 const CACHE_RSVPS  = 'mn_cache_rsvps';
 const CACHE_TTL    = 5 * 60 * 1000;
@@ -782,10 +782,8 @@ function downloadIcs(movie){
     'END:VCALENDAR'
   ].join('\\r\\n');
 
-  const blob = new Blob([icsContent], {type:'text/calendar;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  window.location.href = url;
-  setTimeout(()=>URL.revokeObjectURL(url), 3000);
+  const dataUri = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(icsContent);
+  window.open(dataUri, '_blank');
 }
 
 // ---- SCHEDULE ----
