@@ -245,6 +245,7 @@
     <button class="nav-btn active" onclick="goPage('home',this)"><i class="ti ti-home"></i><span>בית</span><div class="nav-dot"></div></button>
     <button class="nav-btn" onclick="goPage('schedule',this)"><i class="ti ti-calendar"></i><span>תוכניה</span><div class="nav-dot"></div></button>
     <button class="nav-btn" onclick="goPage('profile',this)"><i class="ti ti-user"></i><span>פרופיל</span><div class="nav-dot"></div></button>
+    <button class="nav-btn" id="admin-nav-btn" onclick="goPage('admin',this)" style="display:none"><i class="ti ti-settings"></i><span>ניהול</span><div class="nav-dot"></div></button>
   </nav>
 
   <!-- HOME -->
@@ -415,7 +416,7 @@
 <script>
 const SHEETS_URL   = 'https://script.google.com/macros/s/AKfycbwNchkyjebhNBMLgIISMcO3b5xlBbHHw69mPg2HKUt3TJP7MqgsEyA8yPWAZFrJVVE4/exec';
 const TICKET_BASE  = 'https://hadartzvi.github.io/mid_week_movie_night/tickets/';
-const ADMIN_PW     = '1111';
+const ADMIN_PW     = '5339';
 const CACHE_MOVIES = 'mn_cache_movies';
 const CACHE_RSVPS  = 'mn_cache_rsvps';
 const CACHE_TTL    = 5 * 60 * 1000;
@@ -1046,6 +1047,8 @@ function goPage(name,btn){
   if(!checkAdminAccess()){
     const adminPage=document.getElementById('page-admin');
     if(adminPage) adminPage.style.display='none';
+  } else {
+    document.getElementById('page-admin').style.display='';
   }
   if(btn)btn.classList.add('active');
   let target=name;
@@ -1098,8 +1101,9 @@ renderEmojiPicker('auth-emoji-row', selectedEmoji, function(e){
 if(currentUser) renderProfile();
 initData();
 if(checkAdminAccess()){
+  document.getElementById('admin-nav-btn').style.display='flex';
   document.getElementById('page-admin').style.display='block';
-  goPage('admin', null);
+  goPage('admin', document.getElementById('admin-nav-btn'));
 }
 </script>
 </body>
