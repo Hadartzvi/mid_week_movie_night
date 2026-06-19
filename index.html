@@ -133,14 +133,14 @@
     .profile-section { padding: 0 16px; margin-bottom: 28px; }
     .profile-section h3 { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 0.5px solid var(--border); }
 
-    /* TICKET GRID — 2 columns */
-    .tickets-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .ticket-wrap { cursor: pointer; transition: transform 0.18s; }
+    /* TICKET GRID — fixed width, auto height, no cropping */
+    .tickets-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .ticket-wrap { cursor: pointer; transition: transform 0.18s; display: flex; flex-direction: column; align-items: center; }
     .ticket-wrap:hover { transform: scale(1.03); }
-    .ticket-token { display: block; }
-    .ticket-token img { width: 100%; height: auto; display: block; object-fit: contain; }
-    .ticket-label { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ticket-token-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px; background: var(--bg2); border-radius: var(--radius-md); }
+    .ticket-token { width: 100%; display: flex; align-items: center; justify-content: center; min-height: 60px; }
+    .ticket-token img { width: 100%; height: auto; max-height: 140px; display: block; object-fit: contain; }
+    .ticket-label { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+    .ticket-token-placeholder { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 16px 10px; background: var(--bg2); border-radius: var(--radius-md); aspect-ratio: 5/2; }
     .tt-emoji { font-size: 24px; }
     .tt-title { font-size: 10px; color: var(--text-muted); text-align: center; line-height: 1.3; font-weight: 500; }
     .tt-date  { font-size: 9px; color: var(--text-muted); }
@@ -224,6 +224,15 @@
     .detail-rsvp-btn.full { background: #2c2c2a; color: white; cursor: default; font-size: 11px; letter-spacing: 0.06em; }
     .detail-rsvp-btn.login { background: none; border: 0.5px solid var(--border); color: var(--pink); }
 
+    .security-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 400; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; padding: 20px; }
+    .security-modal-overlay.open { opacity: 1; pointer-events: all; }
+    .security-modal { width: 100%; max-width: 360px; background: var(--bg); border-radius: var(--radius-lg); padding: 24px 20px; text-align: center; }
+    .security-modal-icon { font-size: 40px; margin-bottom: 12px; }
+    .security-modal h3 { font-size: 17px; font-weight: 600; margin-bottom: 10px; }
+    .security-modal p { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 18px; text-align: right; }
+    .security-modal p b { color: var(--text); }
+    .security-modal-btn { width: 100%; padding: 12px; border-radius: var(--radius-md); border: none; background: var(--pink); color: white; font-size: 14px; font-weight: 600; cursor: pointer; }
+
     .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--purple-dark); color: white; padding: 11px 22px; border-radius: 22px; font-size: 14px; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; max-width: 90vw; }
     .toast.show { opacity: 1; }
     .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.35); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
@@ -232,11 +241,10 @@
 </head>
 <body>
 <div class="app">
-  <nav class="nav">
+  <nav class="nav" id="main-nav">
     <button class="nav-btn active" onclick="goPage('home',this)"><i class="ti ti-home"></i><span>בית</span><div class="nav-dot"></div></button>
     <button class="nav-btn" onclick="goPage('schedule',this)"><i class="ti ti-calendar"></i><span>תוכניה</span><div class="nav-dot"></div></button>
     <button class="nav-btn" onclick="goPage('profile',this)"><i class="ti ti-user"></i><span>פרופיל</span><div class="nav-dot"></div></button>
-    <button class="nav-btn" onclick="goPage('admin',this)"><i class="ti ti-settings"></i><span>ניהול</span><div class="nav-dot"></div></button>
   </nav>
 
   <!-- HOME -->
@@ -290,7 +298,7 @@
       <p id="auth-subtitle">צרי פרופיל אישי כדי לעקוב אחרי הסרטים שראית</p>
       <div class="auth-card">
         <div id="auth-register-form">
-          <div class="auth-field"><label>כינוי *</label><input id="reg-username" placeholder="הכינוי שלך..." maxlength="20" /></div>
+          <div class="auth-field"><label>כינוי *</label><input id="reg-username" placeholder="הכינוי שלך..." maxlength="20" onfocus="maybeShowSecurityModal()" /></div>
           <div class="auth-field"><label>סיסמה *</label><input id="reg-password" type="password" placeholder="סיסמה..." /></div>
           <div class="auth-field"><label>בחרי אווטאר</label><div class="auth-emoji-row" id="auth-emoji-row"></div></div>
           <button class="auth-btn" onclick="doRegister()">הצטרפות 🎉</button>
@@ -326,7 +334,7 @@
   </div>
 
   <!-- ADMIN -->
-  <div id="page-admin" class="page">
+  <div id="page-admin" class="page" style="display:none">
     <div id="admin-lock-screen" class="admin-lock">
       <i class="ti ti-lock"></i>
       <p>דף ניהול — רק למארגנת</p>
@@ -386,6 +394,19 @@
   <div class="ticket-fs-inner" onclick="event.stopPropagation()">
     <button class="ticket-fs-close" onclick="closeTicket()"><i class="ti ti-x"></i></button>
     <div id="ticket-fs-content"></div>
+  </div>
+</div>
+
+<!-- SECURITY WARNING MODAL -->
+<div class="security-modal-overlay" id="security-modal-overlay">
+  <div class="security-modal">
+    <div class="security-modal-icon">🔒</div>
+    <h3>רגע לפני שממשיכים</h3>
+    <p>
+      האתר הזה נבנה בין חברות לערב סרט ו<b>אינו מערכת מאובטחת</b>.<br><br>
+      מומלץ לבחור <b>סיסמה פשוטה</b> כמו <b>1111</b>, ו<b>לא</b> להשתמש בסיסמה שאת רגילה להשתמש בה באתרים אחרים.
+    </p>
+    <button class="security-modal-btn" onclick="closeSecurityModal()">הבנתי, נמשיך 🎬</button>
   </div>
 </div>
 
@@ -1022,10 +1043,16 @@ function clearAllRsvps(){rsvps={};localStorage.removeItem(CACHE_RSVPS);renderAdm
 function goPage(name,btn){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  if(!checkAdminAccess()){
+    const adminPage=document.getElementById('page-admin');
+    if(adminPage) adminPage.style.display='none';
+  }
   if(btn)btn.classList.add('active');
   let target=name;
   if(name==='profile'&&!currentUser) target='auth';
-  document.getElementById('page-'+target).classList.add('active');
+  const targetPage=document.getElementById('page-'+target);
+  targetPage.style.display='';
+  targetPage.classList.add('active');
   if(target==='home')renderHome();
   if(target==='schedule')renderSchedule();
   if(target==='profile'){renderProfile();}
@@ -1048,6 +1075,21 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove('show'),2800);
 }
 
+// ---- ADMIN ACCESS VIA URL ----
+function checkAdminAccess(){
+  const params = new URLSearchParams(window.location.search);
+  return params.has('admin');
+}
+function maybeShowSecurityModal(){
+  if(!localStorage.getItem('mn_seen_security_warning')){
+    document.getElementById('security-modal-overlay').classList.add('open');
+  }
+}
+function closeSecurityModal(){
+  document.getElementById('security-modal-overlay').classList.remove('open');
+  localStorage.setItem('mn_seen_security_warning','1');
+}
+
 // ---- INIT ----
 renderEmojiPicker('auth-emoji-row', selectedEmoji, function(e){
   selectedEmoji=e;
@@ -1055,6 +1097,10 @@ renderEmojiPicker('auth-emoji-row', selectedEmoji, function(e){
 });
 if(currentUser) renderProfile();
 initData();
+if(checkAdminAccess()){
+  document.getElementById('page-admin').style.display='block';
+  goPage('admin', null);
+}
 </script>
 </body>
 </html>
