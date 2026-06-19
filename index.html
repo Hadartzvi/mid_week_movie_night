@@ -94,7 +94,7 @@
     .cal-empty-month { text-align: center; color: var(--text-muted); font-size: 13px; padding: 30px 0; }
 
     /* ADD TO CALENDAR BUTTON */
-    .add-to-cal-btn { width: 100%; padding: 10px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: none; color: var(--text-muted); font-size: 13px; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 16px; }
+    .add-to-cal-btn { width: 100%; padding: 10px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: none; color: var(--text-muted); font-size: 13px; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .add-to-cal-btn:hover { background: var(--bg2); color: var(--text); }
 
     /* SCHEDULE */
@@ -114,6 +114,8 @@
     .attendees-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; background: var(--pink-light); color: var(--pink-dark); padding: 3px 9px; border-radius: 12px; margin-top: 6px; font-weight: 500; }
     .attendees-pill.full { background: #2c2c2a; color: white; }
     .next-badge { font-size: 10px; background: var(--pink); color: white; padding: 2px 7px; border-radius: 10px; margin-left: 6px; font-weight: 600; }
+    .draft-badge { font-size: 10px; background: var(--purple); color: white; padding: 2px 7px; border-radius: 10px; margin-left: 6px; font-weight: 600; }
+    .draft-card { border-color: var(--purple); border-width: 1px; background: var(--purple-light, rgba(83,58,183,0.06)); }
     .sold-out-badge { font-size: 10px; background: #2c2c2a; color: white; padding: 2px 7px; border-radius: 10px; margin-left: 6px; font-weight: 700; }
     .empty-state { padding: 40px 16px; text-align: center; color: var(--text-muted); }
     .empty-state i { font-size: 48px; margin-bottom: 12px; display: block; }
@@ -706,8 +708,9 @@ function setScheduleView(view){
 
 function calNav(dir){
   calMonthOffset += dir;
+  const maxOffset = checkAdminAccess() ? 11 : 1;
   if(calMonthOffset<0) calMonthOffset=0;
-  if(calMonthOffset>1) calMonthOffset=1;
+  if(calMonthOffset>maxOffset) calMonthOffset=maxOffset;
   renderCalendar();
 }
 
@@ -746,11 +749,12 @@ function renderCalendar(){
 
   const hasAnyMovie = Object.keys(moviesByDay).length > 0;
 
+  const maxOffset = checkAdminAccess() ? 11 : 1;
   container.innerHTML = `
     <div class="cal-month-header">
       <button class="cal-nav-btn" onclick="calNav(-1)" ${calMonthOffset<=0?'style="visibility:hidden"':''}><i class="ti ti-chevron-right"></i></button>
       <h3>${monthLabel}</h3>
-      <button class="cal-nav-btn" onclick="calNav(1)" ${calMonthOffset>=1?'style="visibility:hidden"':''}><i class="ti ti-chevron-left"></i></button>
+      <button class="cal-nav-btn" onclick="calNav(1)" ${calMonthOffset>=maxOffset?'style="visibility:hidden"':''}><i class="ti ti-chevron-left"></i></button>
     </div>
     <div class="cal-grid">${cellsHtml}</div>
     ${!hasAnyMovie?'<p class="cal-empty-month">אין הקרנות בחודש זה</p>':''}
@@ -791,9 +795,13 @@ function downloadIcs(movie){
 
 // ---- SCHEDULE ----
 function renderSchedule(){
-  const range=getMoviesInRange(), list=document.getElementById('schedule-list');
+  const isAdmin = checkAdminAccess();
+  const range = isAdmin ? [...movies].sort((a,b)=>parseDate(a.date)-parseDate(b.date)) : getMoviesInRange();
+  const list=document.getElementById('schedule-list');
   if(!range.length){list.innerHTML='<div class="empty-state"><i class="ti ti-calendar-off"></i><p>אין הקרנות בחודשיים הקרובים</p></div>';return;}
   const next=getNextMovie();
+  const now=new Date(); now.setHours(0,0,0,0);
+  const visibleEnd=new Date(now); visibleEnd.setMonth(visibleEnd.getMonth()+2);
   const byMonth={};
   range.forEach(m=>{
     const d=parseDate(m.date), k=`${d.getMonth()}_${d.getFullYear()}`;
@@ -804,13 +812,15 @@ function renderSchedule(){
     `<div class="month-section"><div class="month-label">${label}</div>${ms.map(m=>{
       const att=(rsvps[String(m.id)]||[]).length, max=getMax(m), full=att>=max;
       const isNext=next&&String(m.id)===String(next.id);
+      const isBeyondVisible = isAdmin && parseDate(m.date) > visibleEnd;
       const thumb=m.poster?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.parentElement.innerHTML='<i class=\\'ti ti-movie\\'></i>'">`:'<i class="ti ti-movie"></i>';
       const soldOutOverlay=full?'<div class="thumb-sold-out">SOLD OUT</div>':'';
       const badge=full?'<span class="sold-out-badge">SOLD OUT</span>':isNext?'<span class="next-badge">הבא</span>':'';
-      return `<div class="movie-card" onclick="goDetail('${m.id}')">
+      const draftBadge=isBeyondVisible?'<span class="draft-badge">לא חשוף עדיין</span>':'';
+      return `<div class="movie-card${isBeyondVisible?' draft-card':''}" onclick="goDetail('${m.id}')">
         <div class="movie-thumb">${thumb}${soldOutOverlay}</div>
         <div class="movie-info">
-          <h4>${badge} ${m.title}</h4>
+          <h4>${badge}${draftBadge} ${m.title}</h4>
           <div class="meta">${heDate(m.date)} • ${m.time}${m.genre?' • '+m.genre:''}</div>
           <div class="attendees-pill${full?' full':''}"><i class="ti ti-users" style="font-size:12px"></i> ${att}/${max}${full?' · מלא':''}</div>
         </div>
