@@ -72,6 +72,31 @@
     .capacity-fill { height: 100%; background: var(--pink); border-radius: 2px; transition: width 0.4s; }
     .capacity-fill.full { background: #2c2c2a; }
 
+    /* SCHEDULE VIEW TOGGLE */
+    .view-toggle { display: flex; gap: 6px; padding: 0 16px; margin-bottom: 16px; }
+    .view-toggle-btn { flex: 1; padding: 9px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: var(--bg); color: var(--text-muted); font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .view-toggle-btn.active { background: var(--pink-light); color: var(--pink-dark); border-color: var(--pink-mid); }
+
+    /* CALENDAR VIEW */
+    .calendar-wrap { padding: 0 16px; }
+    .cal-month-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .cal-month-header h3 { font-size: 16px; font-weight: 600; }
+    .cal-nav-btn { width: 32px; height: 32px; border-radius: 50%; border: 0.5px solid var(--border); background: var(--bg); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 28px; }
+    .cal-weekday { font-size: 10px; color: var(--text-muted); text-align: center; font-weight: 600; padding-bottom: 6px; }
+    .cal-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: var(--radius-md); font-size: 13px; color: var(--text); position: relative; cursor: default; }
+    .cal-day.empty { visibility: hidden; }
+    .cal-day.has-movie { cursor: pointer; background: var(--pink-light); color: var(--pink-dark); font-weight: 600; }
+    .cal-day.has-movie:hover { background: var(--pink-mid); }
+    .cal-day.is-full { background: #2c2c2a; color: white; }
+    .cal-day-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--pink); position: absolute; bottom: 4px; }
+    .cal-day.is-full .cal-day-dot { background: white; }
+    .cal-empty-month { text-align: center; color: var(--text-muted); font-size: 13px; padding: 30px 0; }
+
+    /* ADD TO CALENDAR BUTTON */
+    .add-to-cal-btn { width: 100%; padding: 10px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: none; color: var(--text-muted); font-size: 13px; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .add-to-cal-btn:hover { background: var(--bg2); color: var(--text); }
+
     /* SCHEDULE */
     .page-header { padding: 24px 16px 0; margin-bottom: 20px; }
     .page-header h2 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
@@ -268,11 +293,16 @@
   <!-- SCHEDULE -->
   <div id="page-schedule" class="page">
     <div class="page-header"><h2>תוכניה</h2><p>הקרנות בחודשיים הקרובים</p></div>
+    <div class="view-toggle">
+      <button class="view-toggle-btn active" id="view-list-btn" onclick="setScheduleView('list')"><i class="ti ti-list"></i> רשימה</button>
+      <button class="view-toggle-btn" id="view-cal-btn" onclick="setScheduleView('calendar')"><i class="ti ti-calendar"></i> לוח שנה</button>
+    </div>
     <div id="schedule-list">
       <div class="skel skel-card"></div>
       <div class="skel skel-card" style="margin-top:10px"></div>
       <div class="skel skel-card" style="margin-top:10px"></div>
     </div>
+    <div id="schedule-calendar" class="calendar-wrap" style="display:none"></div>
   </div>
 
   <!-- DETAIL -->
@@ -287,6 +317,7 @@
         <h3 id="detail-att-title">מגיעים</h3>
         <button id="detail-rsvp-btn" class="detail-rsvp-btn join">אשר/י הגעה</button>
       </div>
+      <div id="detail-cal-area"></div>
       <div class="bubbles-row" id="detail-bubbles"></div>
     </div>
   </div>
@@ -416,7 +447,7 @@
 <script>
 const SHEETS_URL   = 'https://script.google.com/macros/s/AKfycbwNchkyjebhNBMLgIISMcO3b5xlBbHHw69mPg2HKUt3TJP7MqgsEyA8yPWAZFrJVVE4/exec';
 const TICKET_BASE  = 'https://hadartzvi.github.io/mid_week_movie_night/tickets/';
-const ADMIN_PW     = '5339';
+const ADMIN_PW     = '1111';
 const CACHE_MOVIES = 'mn_cache_movies';
 const CACHE_RSVPS  = 'mn_cache_rsvps';
 const CACHE_TTL    = 5 * 60 * 1000;
@@ -579,7 +610,8 @@ function renderRsvpBox(){
   } else if(already){
     box.innerHTML=`
       <button class="rsvp-btn" disabled>✓ אישרת הגעה!</button>
-      <button class="cancel-rsvp-btn" onclick="doCancelRsvp()">ביטול הגעה</button>`;
+      <button class="cancel-rsvp-btn" onclick="doCancelRsvp()">ביטול הגעה</button>
+      <button class="add-to-cal-btn" onclick='downloadIcs(${JSON.stringify(movie)})'><i class="ti ti-calendar-plus"></i> הוסיפי ליומן</button>`;
   } else if(full){
     box.innerHTML=`<button class="rsvp-btn sold-out-btn" disabled>🎟️ SOLD OUT</button>`;
   } else {
@@ -657,6 +689,104 @@ function renderHome(){
       <div class="capacity-bar"><div class="capacity-fill${full?' full':''}" style="width:${pct}%"></div></div>
     </div>`;
   renderRsvpBox();
+}
+
+// ---- SCHEDULE VIEW TOGGLE ----
+let scheduleView = 'list';
+let calMonthOffset = 0;
+
+function setScheduleView(view){
+  scheduleView = view;
+  document.getElementById('view-list-btn').classList.toggle('active', view==='list');
+  document.getElementById('view-cal-btn').classList.toggle('active', view==='calendar');
+  document.getElementById('schedule-list').style.display = view==='list'?'block':'none';
+  document.getElementById('schedule-calendar').style.display = view==='calendar'?'block':'none';
+  if(view==='calendar'){ calMonthOffset=0; renderCalendar(); }
+}
+
+function calNav(dir){
+  calMonthOffset += dir;
+  if(calMonthOffset<0) calMonthOffset=0;
+  if(calMonthOffset>1) calMonthOffset=1;
+  renderCalendar();
+}
+
+function renderCalendar(){
+  const container=document.getElementById('schedule-calendar');
+  const now=new Date();
+  const target=new Date(now.getFullYear(), now.getMonth()+calMonthOffset, 1);
+  const year=target.getFullYear(), month=target.getMonth();
+  const monthLabel=`${MONTHS_HE[month]} ${year}`;
+
+  const moviesByDay={};
+  movies.forEach(m=>{
+    const d=parseDate(m.date);
+    if(d.getFullYear()===year && d.getMonth()===month){
+      moviesByDay[d.getDate()]=m;
+    }
+  });
+
+  const firstDay=new Date(year,month,1).getDay();
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const weekdays=['א','ב','ג','ד','ה','ו','ש'];
+
+  let cellsHtml = weekdays.map(w=>`<div class="cal-weekday">${w}</div>`).join('');
+  for(let i=0;i<firstDay;i++) cellsHtml += `<div class="cal-day empty"></div>`;
+  for(let day=1; day<=daysInMonth; day++){
+    const movie=moviesByDay[day];
+    if(movie){
+      const att=(rsvps[String(movie.id)]||[]).length;
+      const max=getMax(movie);
+      const full=att>=max;
+      cellsHtml += `<div class="cal-day has-movie${full?' is-full':''}" onclick="goDetail('${movie.id}')">${day}<div class="cal-day-dot"></div></div>`;
+    } else {
+      cellsHtml += `<div class="cal-day">${day}</div>`;
+    }
+  }
+
+  const hasAnyMovie = Object.keys(moviesByDay).length > 0;
+
+  container.innerHTML = `
+    <div class="cal-month-header">
+      <button class="cal-nav-btn" onclick="calNav(-1)" ${calMonthOffset<=0?'style="visibility:hidden"':''}><i class="ti ti-chevron-right"></i></button>
+      <h3>${monthLabel}</h3>
+      <button class="cal-nav-btn" onclick="calNav(1)" ${calMonthOffset>=1?'style="visibility:hidden"':''}><i class="ti ti-chevron-left"></i></button>
+    </div>
+    <div class="cal-grid">${cellsHtml}</div>
+    ${!hasAnyMovie?'<p class="cal-empty-month">אין הקרנות בחודש זה</p>':''}
+  `;
+}
+
+// ---- ADD TO CALENDAR (.ics) ----
+function downloadIcs(movie){
+  const d=parseDate(movie.date);
+  const [hh,mm]=(movie.time||'20:00').split(':').map(Number);
+  const start=new Date(d.getFullYear(), d.getMonth(), d.getDate(), hh||20, mm||0);
+  const end=new Date(start.getTime() + 2*60*60*1000); // 2 hours duration
+
+  const fmt=dt=>dt.getFullYear()+String(dt.getMonth()+1).padStart(2,'0')+String(dt.getDate()).padStart(2,'0')+'T'+String(dt.getHours()).padStart(2,'0')+String(dt.getMinutes()).padStart(2,'0')+'00';
+
+  const icsContent = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'BEGIN:VEVENT',
+    'SUMMARY:ערב סרט: ' + movie.title,
+    'DTSTART:' + fmt(start),
+    'DTEND:' + fmt(end),
+    'DESCRIPTION:' + (movie.desc || 'ערב סרט בין חברות 🎬').replace(/\\n/g,' '),
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\\r\\n');
+
+  const blob = new Blob([icsContent], {type:'text/calendar;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = movie.title.replace(/[^a-zA-Z0-9א-ת ]/g,'') + '.ics';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 // ---- SCHEDULE ----
@@ -769,6 +899,9 @@ function goDetail(id){
     detailBtn.onclick=()=>doDetailRsvp(m.id, m.title, m.ticket_filename||'');
     detailBtn.disabled=false;
   }
+  document.getElementById('detail-cal-area').innerHTML = alreadyIn
+    ? `<button class="add-to-cal-btn" onclick='downloadIcs(${JSON.stringify(m)})'><i class="ti ti-calendar-plus"></i> הוסיפי ליומן</button>`
+    : '';
 
   document.getElementById('detail-bubbles').innerHTML=att.length===0
     ?'<p style="font-size:13px;color:var(--text-muted)">עדיין אין הרשמות</p>'
