@@ -94,7 +94,7 @@
     .cal-empty-month { text-align: center; color: var(--text-muted); font-size: 13px; padding: 30px 0; }
 
     /* ADD TO CALENDAR BUTTON */
-    .add-to-cal-btn { width: 100%; padding: 10px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: none; color: var(--text-muted); font-size: 13px; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .add-to-cal-btn { width: 100%; padding: 10px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: none; color: var(--text-muted); font-size: 13px; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; box-sizing: border-box; }
     .add-to-cal-btn:hover { background: var(--bg2); color: var(--text); }
 
     /* SCHEDULE */
@@ -449,7 +449,7 @@
 <script>
 const SHEETS_URL   = 'https://script.google.com/macros/s/AKfycbwNchkyjebhNBMLgIISMcO3b5xlBbHHw69mPg2HKUt3TJP7MqgsEyA8yPWAZFrJVVE4/exec';
 const TICKET_BASE  = 'https://hadartzvi.github.io/mid_week_movie_night/tickets/';
-const ADMIN_PW     = '5339';
+const ADMIN_PW     = '1111';
 const CACHE_MOVIES = 'mn_cache_movies';
 const CACHE_RSVPS  = 'mn_cache_rsvps';
 const CACHE_TTL    = 5 * 60 * 1000;
@@ -613,7 +613,7 @@ function renderRsvpBox(){
     box.innerHTML=`
       <button class="rsvp-btn" disabled>✓ אישרת הגעה!</button>
       <button class="cancel-rsvp-btn" onclick="doCancelRsvp()">ביטול הגעה</button>
-      <button class="add-to-cal-btn" onclick='downloadIcs(${JSON.stringify(movie)})'><i class="ti ti-calendar-plus"></i> הוסיפי ליומן</button>`;
+      <a class="add-to-cal-btn" href="${buildIcsHref(movie)}" download="${movie.title.replace(/[^a-zA-Z0-9א-ת ]/g,'')}.ics"><i class="ti ti-calendar-plus"></i> הוסיפי ליומן</a>`;
   } else if(full){
     box.innerHTML=`<button class="rsvp-btn sold-out-btn" disabled>🎟️ SOLD OUT</button>`;
   } else {
@@ -762,7 +762,7 @@ function renderCalendar(){
 }
 
 // ---- ADD TO CALENDAR (.ics) ----
-function downloadIcs(movie){
+function buildIcsHref(movie){
   const d=parseDate(movie.date);
   const [hh,mm]=(movie.time||'20:00').split(':').map(Number);
   const start=new Date(d.getFullYear(), d.getMonth(), d.getDate(), hh||20, mm||0);
@@ -777,13 +777,12 @@ function downloadIcs(movie){
     'SUMMARY:ערב סרט: ' + movie.title,
     'DTSTART:' + fmt(start),
     'DTEND:' + fmt(end),
-    'DESCRIPTION:' + (movie.desc || 'ערב סרט בין חברות 🎬').replace(/\\n/g,' '),
+    'DESCRIPTION:' + (movie.desc || 'ערב סרט בין חברות 🎬').replace(/\n/g,' '),
     'END:VEVENT',
     'END:VCALENDAR'
-  ].join('\\r\\n');
+  ].join('\r\n');
 
-  const dataUri = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(icsContent);
-  window.open(dataUri, '_blank');
+  return 'data:text/calendar;charset=utf-8,' + encodeURIComponent(icsContent);
 }
 
 // ---- SCHEDULE ----
@@ -903,7 +902,7 @@ function goDetail(id){
     detailBtn.disabled=false;
   }
   document.getElementById('detail-cal-area').innerHTML = alreadyIn
-    ? `<button class="add-to-cal-btn" onclick='downloadIcs(${JSON.stringify(m)})'><i class="ti ti-calendar-plus"></i> הוסיפי ליומן</button>`
+    ? `<a class="add-to-cal-btn" href="${buildIcsHref(m)}" download="${m.title.replace(/[^a-zA-Z0-9א-ת ]/g,'')}.ics"><i class="ti ti-calendar-plus"></i> הוסיפי ליומן</a>`
     : '';
 
   document.getElementById('detail-bubbles').innerHTML=att.length===0
