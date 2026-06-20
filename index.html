@@ -36,15 +36,17 @@
     .skel-card { height: 80px; margin: 0 16px 10px; border-radius: var(--radius-lg); }
 
     /* HOME */
+    .house-rules { text-align: center; padding: 8px 16px; font-size: 11px; color: var(--text-muted); border-bottom: 0.5px solid var(--border); }
     .hero-section { padding: 24px 16px 0; text-align: center; }
     .hero-label { font-size: 11px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
-    .hero-title { font-size: 24px; font-weight: 600; margin-bottom: 4px; min-height: 32px; }
+    .hero-title { font-size: 24px; font-weight: 600; margin-bottom: 4px; min-height: 32px; cursor: pointer; }
     .hero-date { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; min-height: 20px; }
-    .poster-stage { position: relative; width: 200px; height: 300px; margin: 0 auto 40px; }
+    .poster-stage { position: relative; width: 200px; height: 300px; margin: 0 auto 40px; cursor: pointer; }
     .poster-img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-lg); border: 0.5px solid var(--border); display: block; }
     .poster-placeholder { width: 100%; height: 100%; border-radius: var(--radius-lg); border: 0.5px solid var(--border); background: var(--bg2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--text-muted); font-size: 14px; }
     .poster-placeholder i { font-size: 48px; }
     .sold-out-banner { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.78); color: white; font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-align: center; padding: 8px 0; border-radius: 0 0 var(--radius-lg) var(--radius-lg); z-index: 4; }
+    .details-badge { position: absolute; bottom: 8px; left: 8px; background: rgba(0,0,0,0.55); color: white; font-size: 11px; padding: 4px 9px; border-radius: 12px; display: flex; align-items: center; gap: 4px; z-index: 4; }
     .bubble { position: absolute; border-radius: 50%; border: 2.5px solid var(--bg); background: var(--pink-light); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: default; z-index: 2; width: 48px; height: 48px; animation: float 3s ease-in-out infinite; }
     .bubble:hover { transform: scale(1.15); z-index: 3; }
     .bubble-tip { position: absolute; bottom: -26px; left: 50%; transform: translateX(-50%); background: var(--purple-dark); color: #fff; font-size: 10px; padding: 3px 8px; border-radius: 10px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
@@ -71,6 +73,19 @@
     .capacity-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
     .capacity-fill { height: 100%; background: var(--pink); border-radius: 2px; transition: width 0.4s; }
     .capacity-fill.full { background: #2c2c2a; }
+
+    .suggest-area { padding: 0 16px 30px; }
+    .suggest-header { display: flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 500; margin-bottom: 10px; color: var(--text); }
+    .suggest-header i { font-size: 16px; color: var(--text-muted); }
+    .suggest-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px; }
+    .suggest-card input, .suggest-card textarea { width: 100%; padding: 10px 12px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: var(--bg2); color: var(--text); font-size: 14px; margin-bottom: 8px; outline: none; font-family: inherit; }
+    .suggest-card input:focus, .suggest-card textarea:focus { border-color: var(--pink); }
+    .suggest-btn { width: 100%; padding: 11px; border-radius: var(--radius-md); border: none; background: var(--purple); color: white; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 2px; }
+    .suggest-btn:disabled { background: var(--bg2); color: var(--text-muted); border: 0.5px solid var(--border); cursor: default; }
+    .suggest-remaining { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 10px; }
+    .suggest-locked { text-align: center; padding: 6px 0; }
+    .suggest-locked p { font-size: 13px; color: var(--text-muted); }
+    .suggest-locked a { color: var(--pink); cursor: pointer; text-decoration: underline; }
 
     /* SCHEDULE VIEW TOGGLE */
     .view-toggle { display: flex; gap: 6px; padding: 0 16px; margin-bottom: 16px; }
@@ -240,6 +255,13 @@
     .stat-count { font-size: 14px; font-weight: 600; color: var(--purple); }
     .stat-count.full { color: #2c2c2a; }
     .stat-names { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    .sugg-row { padding: 11px 0; border-bottom: 0.5px solid var(--border); }
+    .sugg-row:last-child { border-bottom: none; }
+    .sugg-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+    .sugg-title { font-size: 14px; font-weight: 500; }
+    .sugg-count { font-size: 11px; background: var(--pink-light); color: var(--pink-dark); padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+    .sugg-meta { font-size: 11px; color: var(--text-muted); margin-bottom: 3px; }
+    .sugg-text { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
 
     .detail-att-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
     .detail-att-row h3 { font-size: 16px; font-weight: 600; margin-bottom: 0; }
@@ -307,11 +329,12 @@
 
   <!-- HOME -->
   <div id="page-home" class="page active">
+    <div class="house-rules">🍿 מביאים נשנוש · מתחילות בזמן · מקומות מוגבלים - הירשמו מהר!</div>
     <div class="hero-section">
       <div class="hero-label">הקרנה הבאה</div>
-      <div class="hero-title" id="hero-title"></div>
+      <div class="hero-title" id="hero-title" onclick="goToCurrentMovieDetail()"></div>
       <div class="hero-date" id="hero-date"></div>
-      <div class="poster-stage" id="poster-stage"><div class="skel skel-poster"></div></div>
+      <div class="poster-stage" id="poster-stage" onclick="goToCurrentMovieDetail()"><div class="skel skel-poster"></div></div>
     </div>
     <div class="rsvp-area">
       <div class="rsvp-box">
@@ -319,6 +342,10 @@
         <div id="rsvp-content"></div>
         <div id="capacity-bar-area"></div>
       </div>
+    </div>
+    <div class="suggest-area">
+      <div class="suggest-header"><i class="ti ti-bulb"></i> יש לכן רעיון לסרט?</div>
+      <div class="suggest-card" id="suggest-card"></div>
     </div>
   </div>
 
@@ -433,6 +460,7 @@
         </div>
       </div>
       <div class="admin-section"><h3>רשימת צפייה 👀</h3><div class="admin-card" id="admin-watchlist"><p style="font-size:13px;color:var(--text-muted)">טוען...</p></div></div>
+      <div class="admin-section"><h3>הצעות לסרטים 💡</h3><div class="admin-card" id="admin-suggestions"><p style="font-size:13px;color:var(--text-muted)">טוען...</p></div></div>
       <div class="admin-section">
         <button class="add-btn" style="background:#2c5f8a;margin-bottom:10px" onclick="refreshCache()"><i class="ti ti-refresh" style="font-size:14px;vertical-align:middle;margin-left:6px"></i> רענן תוכן מגוגל שיטס</button>
         <button class="danger-btn" onclick="if(confirm('למחוק את כל ההרשמות המקומיות?'))clearAllRsvps()">מחיקת הרשמות מקומיות</button>
@@ -478,7 +506,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const SHEETS_URL   = 'https://script.google.com/macros/s/AKfycbwNchkyjebhNBMLgIISMcO3b5xlBbHHw69mPg2HKUt3TJP7MqgsEyA8yPWAZFrJVVE4/exec';
+const SHEETS_URL   = 'https://script.google.com/macros/s/AKfycbx6fVZTu6uF1lQDDLohJFHj-LxEsce1YidVc8P12Cl8C_iN8oiH72e5bel8QBwEMm8/exec';
 const TICKET_BASE  = 'https://hadartzvi.github.io/mid_week_movie_night/tickets/';
 const ADMIN_PW     = '1111';
 const CACHE_MOVIES = 'mn_cache_movies';
@@ -495,7 +523,7 @@ const BUBBLE_POS = [
   {top:'42%',left:'-30px'},{top:'18px',left:'-18px'}
 ];
 
-let movies = [], rsvps = {};
+let movies = [], rsvps = {}, suggestions = [];
 let currentUser = JSON.parse(localStorage.getItem('mn_user') || 'null');
 let selectedEmoji = EMOJIS[0];
 let selectedEditEmoji = null;
@@ -552,6 +580,7 @@ async function refreshFromSheets() {
     movies=md.map(m=>({...m,id:String(m.id),ticket_filename:m.ticket_filename||m.ticket_url||""}));
     rsvps=parseRsvps(rd);
     cacheSet(CACHE_MOVIES,movies); cacheSet(CACHE_RSVPS,rsvps);
+    try { suggestions = await sheetsGet('suggestions'); } catch { suggestions = []; }
     return true;
   } catch{return false;}
 }
@@ -699,7 +728,50 @@ async function doCancelRsvp(){
   renderHome();
 }
 
+// ---- SUGGESTIONS ----
+function renderSuggestBox(){
+  const card=document.getElementById('suggest-card');
+  if(!card) return;
+  if(!currentUser){
+    card.innerHTML=`<div class="suggest-locked"><p>כדי להציע סרט <a onclick="goPage('auth',document.querySelectorAll('.nav-btn')[2])">התחברי / הצטרפי</a></p></div>`;
+    return;
+  }
+  card.innerHTML=`
+    <input id="sg-title" placeholder="שם הסרט..." maxlength="80" />
+    <input id="sg-desc" placeholder="תיאור קצר..." maxlength="160" />
+    <input id="sg-reason" placeholder="למה דווקא הסרט הזה?" maxlength="160" />
+    <button class="suggest-btn" id="sg-submit-btn" onclick="doSuggest()">שליחת הצעה</button>
+    <div class="suggest-remaining" id="sg-remaining"></div>
+  `;
+}
+
+async function doSuggest(){
+  if(!currentUser)return;
+  const title=document.getElementById('sg-title').value.trim();
+  const desc=document.getElementById('sg-desc').value.trim();
+  const reason=document.getElementById('sg-reason').value.trim();
+  if(!title){showToast('כתבי את שם הסרט');return;}
+  const btn=document.getElementById('sg-submit-btn');
+  btn.textContent='שולחת...'; btn.disabled=true;
+  try{
+    const res=await sheetsPost({action:'addSuggestion',username:currentUser.username,movie_title:title,description:desc,reason:reason});
+    if(res.status==='ok'){
+      ['sg-title','sg-desc','sg-reason'].forEach(id=>{const el=document.getElementById(id); if(el)el.value='';});
+      document.getElementById('sg-remaining').textContent = res.remaining>0 ? `נותרה עוד ${res.remaining} הצעה החודש` : 'ניצלת את ההצעות החודש';
+      showToast('ההצעה נשלחה! תודה 🎬');
+    } else {
+      showToast(res.message||'שגיאה בשליחה');
+    }
+  }catch{showToast('שגיאת חיבור — נסי שוב');}
+  btn.textContent='שליחת הצעה'; btn.disabled=false;
+}
+
 // ---- HOME ----
+function goToCurrentMovieDetail(){
+  const movie=getNextMovie();
+  if(movie) goDetail(movie.id);
+}
+
 function renderHome(){
   const movie=getNextMovie();
   if(!movie){
@@ -707,7 +779,9 @@ function renderHome(){
     document.getElementById('hero-date').textContent='';
     document.getElementById('poster-stage').innerHTML='<div class="poster-placeholder"><i class="ti ti-movie"></i><span>בקרוב...</span></div>';
     document.getElementById('capacity-bar-area').innerHTML='';
-    renderRsvpBox(); return;
+    document.getElementById('poster-stage').onclick=null;
+    document.getElementById('hero-title').onclick=null;
+    renderRsvpBox(); renderSuggestBox(); return;
   }
   document.getElementById('hero-title').textContent=movie.title;
   document.getElementById('hero-date').textContent=`${heDate(movie.date)} • ${movie.time}`;
@@ -718,10 +792,11 @@ function renderHome(){
     return `<div class="bubble" style="${s}"><span>${p.emoji}</span><div class="bubble-tip">${p.name}</div></div>`;
   }).join('');
   const soldOutBanner=full?'<div class="sold-out-banner">🎟️ SOLD OUT</div>':'';
+  const detailsBadge='<div class="details-badge"><i class="ti ti-info-circle"></i>פרטים</div>';
   const poster=movie.poster
     ?`<img src="${movie.poster}" class="poster-img" alt="${movie.title}" onerror="this.outerHTML='<div class=poster-placeholder><i class=ti-movie></i><span>${movie.title}</span></div>'">`
     :`<div class="poster-placeholder"><i class="ti ti-movie"></i><span>${movie.title}</span></div>`;
-  document.getElementById('poster-stage').innerHTML=poster+bubbles+soldOutBanner;
+  document.getElementById('poster-stage').innerHTML=poster+bubbles+soldOutBanner+detailsBadge;
   const pct=Math.min(100,Math.round(att.length/max*100));
   document.getElementById('capacity-bar-area').innerHTML=`
     <div class="capacity-bar-wrap">
@@ -729,6 +804,7 @@ function renderHome(){
       <div class="capacity-bar"><div class="capacity-fill${full?' full':''}" style="width:${pct}%"></div></div>
     </div>`;
   renderRsvpBox();
+  renderSuggestBox();
 }
 
 // ---- SCHEDULE VIEW TOGGLE ----
@@ -1078,7 +1154,7 @@ async function loadAdminData(){
   const ok=await refreshFromSheets();
   dot.classList.toggle('off',!ok);
   txt.textContent=ok?'מחוברת לגוגל שיטס ✓':'לא ניתן להתחבר';
-  renderAdminStats(); renderAdminMoviesList(); renderAdminWatchlist(); renderHome(); renderSchedule();
+  renderAdminStats(); renderAdminMoviesList(); renderAdminWatchlist(); renderAdminSuggestions(); renderHome(); renderSchedule();
 }
 
 function renderAdminStats(){
@@ -1108,6 +1184,32 @@ function renderAdminWatchlist(){
         <button class="icon-btn delete" onclick="deleteMovie('${m.id}')"><i class="ti ti-trash"></i></button>
       </div>
     </div>`).join('');
+}
+
+function renderAdminSuggestions(){
+  const container=document.getElementById('admin-suggestions');
+  if(!container) return;
+  if(!suggestions.length){container.innerHTML='<p style="font-size:13px;color:var(--text-muted)">אין הצעות עדיין</p>';return;}
+  const grouped={};
+  suggestions.forEach(s=>{
+    const key=String(s.movie_title||'').trim().toLowerCase();
+    if(!key) return;
+    if(!grouped[key]) grouped[key]={title:s.movie_title, items:[]};
+    grouped[key].items.push(s);
+  });
+  const sorted=Object.values(grouped).sort((a,b)=>b.items.length-a.items.length);
+  container.innerHTML=sorted.map(g=>{
+    const latest=g.items[g.items.length-1];
+    return `<div class="sugg-row">
+      <div class="sugg-top">
+        <span class="sugg-title">${g.title}</span>
+        <span class="sugg-count">הוצע ${g.items.length} ${g.items.length===1?'פעם':'פעמים'}</span>
+      </div>
+      <div class="sugg-meta">ע"י ${g.items.map(i=>i.username).join(', ')}</div>
+      ${latest.description?`<div class="sugg-text">${latest.description}</div>`:''}
+      ${latest.reason?`<div class="sugg-text">💬 ${latest.reason}</div>`:''}
+    </div>`;
+  }).join('');
 }
 
 function renderAdminMoviesList(){
@@ -1176,7 +1278,7 @@ async function addMovie(){
     await sheetsPost({action:'addMovie',...newMovie,ticket_url:newMovie.ticket_filename});
     movies.push(newMovie); cacheSet(CACHE_MOVIES,movies);
     ['a-title','a-date','a-time','a-poster','a-genre','a-desc','a-max','a-ticket'].forEach(id=>document.getElementById(id).value='');
-    renderAdminMoviesList(); renderAdminWatchlist(); renderAdminStats(); renderSchedule(); renderHome();
+    renderAdminMoviesList(); renderAdminWatchlist(); renderAdminSuggestions(); renderAdminStats(); renderSchedule(); renderHome();
     showToast(date ? 'הסרט נוסף לתוכניה ✓' : 'הסרט נוסף לרשימת הצפייה ✓');
   }catch{showToast('שגיאה בשמירה — נסי שוב');}
   btn.textContent='הוסיפי סרט לתוכניה'; btn.disabled=false;
@@ -1200,7 +1302,7 @@ async function saveEdit(id){
     const idx=movies.findIndex(m=>String(m.id)===String(id));
     if(idx!==-1)movies[idx]=updated; cacheSet(CACHE_MOVIES,movies);
     cancelEdit();
-    renderAdminMoviesList(); renderAdminWatchlist(); renderAdminStats(); renderSchedule(); renderHome();
+    renderAdminMoviesList(); renderAdminWatchlist(); renderAdminSuggestions(); renderAdminStats(); renderSchedule(); renderHome();
     showToast(date ? 'הסרט עודכן ונוסף לתוכניה ✓' : 'הסרט עודכן ✓');
   }catch{showToast('שגיאה בעדכון — נסי שוב');}
   btn.disabled=false;
@@ -1212,7 +1314,7 @@ async function deleteMovie(id){
   try{
     await sheetsPost({action:'deleteMovie',id});
     movies=movies.filter(x=>String(x.id)!==String(id)); cacheSet(CACHE_MOVIES,movies);
-    renderAdminMoviesList(); renderAdminWatchlist(); renderAdminStats(); renderSchedule(); renderHome();
+    renderAdminMoviesList(); renderAdminWatchlist(); renderAdminSuggestions(); renderAdminStats(); renderSchedule(); renderHome();
     showToast('הסרט נמחק');
   }catch{showToast('שגיאה במחיקה — נסי שוב');}
 }
@@ -1223,7 +1325,7 @@ async function refreshCache(){
   const btn = document.querySelector('[onclick="refreshCache()"]');
   if(btn){ btn.textContent='מרענן...'; btn.disabled=true; }
   const ok = await refreshFromSheets();
-  renderAdminStats(); renderAdminMoviesList(); renderAdminWatchlist(); renderHome(); renderSchedule();
+  renderAdminStats(); renderAdminMoviesList(); renderAdminWatchlist(); renderAdminSuggestions(); renderHome(); renderSchedule();
   if(btn){ btn.innerHTML='<i class="ti ti-refresh" style="font-size:14px;vertical-align:middle;margin-left:6px"></i> רענן תוכן מגוגל שיטס'; btn.disabled=false; }
   showToast(ok ? 'התוכן עודכן ✓' : 'שגיאת חיבור');
 }
