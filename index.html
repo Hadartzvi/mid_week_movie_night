@@ -260,7 +260,7 @@
     .security-modal p b { color: var(--text); }
     .security-modal-btn { width: 100%; padding: 12px; border-radius: var(--radius-md); border: none; background: var(--pink); color: white; font-size: 14px; font-weight: 600; cursor: pointer; }
 
-    .splash-overlay { position: fixed; inset: 0; z-index: 1000; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 0 24px; animation: splashFadeOut 0.5s ease 1.6s forwards; }
+    .splash-overlay { position: fixed; inset: 0; z-index: 1000; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 0 24px; }
     .splash-overlay.hidden { display: none; }
     @keyframes splashFadeOut { to { opacity: 0; visibility: hidden; pointer-events: none; } }
     @keyframes splashPopIn { 0%{transform:scale(0.85);opacity:0} 60%{transform:scale(1.05);opacity:1} 100%{transform:scale(1);opacity:1} }
@@ -533,15 +533,17 @@ function parseRsvps(data) {
 
 async function initData() {
   const cm=cacheGet(CACHE_MOVIES),cr=cacheGet(CACHE_RSVPS);
-  if(cm){movies=cm;renderHome();renderSchedule();}
-  if(cr){rsvps=cr;renderHome();renderSchedule();}
+  if(cm){movies=cm;renderHome();}
+  if(cr){rsvps=cr;renderHome();}
   try {
     const [md,rd]=await Promise.all([sheetsGet('movies'),sheetsGet('rsvps')]);
     movies=md.map(m=>({...m,id:String(m.id),ticket_filename:m.ticket_filename||m.ticket_url||""}));
     rsvps=parseRsvps(rd);
     cacheSet(CACHE_MOVIES,movies); cacheSet(CACHE_RSVPS,rsvps);
-    renderHome(); renderSchedule();
-  } catch(e){if(!cm){renderHome();renderSchedule();}}
+    renderHome();
+  } catch(e){if(!cm){renderHome();}}
+  // טעינה מוקדמת ברקע — מוכן מיד כשנכנסים לתוכניה
+  renderSchedule();
 }
 
 async function refreshFromSheets() {
@@ -1287,7 +1289,23 @@ renderEmojiPicker('auth-emoji-row', selectedEmoji, function(e){
   renderEmojiPicker('auth-emoji-row',e,function(e2){selectedEmoji=e2;});
 });
 if(currentUser) renderProfile();
-initData();
+
+const SPLASH_MIN_MS = 900;
+const SPLASH_MAX_MS = 3000;
+const splashStart = Date.now();
+
+function dismissSplash(){
+  const splash=document.getElementById('splash-overlay');
+  if(!splash || splash.dataset.dismissed) return;
+  splash.dataset.dismissed = '1';
+  const elapsed = Date.now() - splashStart;
+  const wait = Math.max(0, SPLASH_MIN_MS - elapsed);
+  setTimeout(()=>{
+    splash.style.animation = 'splashFadeOut 0.5s ease forwards';
+    setTimeout(()=>splash.remove(), 550);
+  }, wait);
+}
+
 if(checkAdminAccess()){
   document.getElementById('admin-nav-btn').style.display='flex';
   document.getElementById('page-admin').style.display='block';
@@ -1295,8 +1313,8 @@ if(checkAdminAccess()){
   const splash=document.getElementById('splash-overlay');
   if(splash) splash.remove();
 } else {
-  const splash=document.getElementById('splash-overlay');
-  if(splash) setTimeout(()=>splash.remove(), 2200);
+  setTimeout(dismissSplash, SPLASH_MAX_MS);
+  initData().then(dismissSplash).catch(dismissSplash);
 }
 </script>
 </body>
