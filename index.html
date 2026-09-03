@@ -49,6 +49,7 @@
     .details-badge { position: absolute; bottom: 8px; left: 8px; background: rgba(0,0,0,0.55); color: white; font-size: 11px; padding: 4px 9px; border-radius: 12px; display: flex; align-items: center; gap: 4px; z-index: 4; }
     .bubble { position: absolute; border-radius: 50%; border: 2.5px solid var(--bg); background: var(--pink-light); display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: default; z-index: 2; width: 48px; height: 48px; animation: float 3s ease-in-out infinite; }
     .bubble:hover { transform: scale(1.15); z-index: 3; }
+    .bubble-plus { position: absolute; bottom: -2px; right: -2px; width: 16px; height: 16px; border-radius: 50%; background: var(--purple); border: 2px solid var(--bg); display: flex; align-items: center; justify-content: center; font-size: 9px; color: white; font-weight: 700; z-index: 3; }
     .bubble-tip { position: absolute; bottom: -26px; left: 50%; transform: translateX(-50%); background: var(--purple-dark); color: #fff; font-size: 10px; padding: 3px 8px; border-radius: 10px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
     .bubble:hover .bubble-tip { opacity: 1; }
     @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
@@ -66,6 +67,8 @@
     .rsvp-btn.sold-out-btn { background: #2c2c2a; color: white; cursor: default; letter-spacing: 0.08em; }
     .cancel-rsvp-btn { width: 100%; padding: 10px; border-radius: var(--radius-md); border: 0.5px solid var(--border); background: none; color: var(--text-muted); font-size: 13px; cursor: pointer; margin-top: 8px; }
     .cancel-rsvp-btn:hover { color: #A32D2D; border-color: #A32D2D; }
+    .guest-check { display: flex; align-items: center; gap: 8px; margin: 10px 0 4px; font-size: 14px; color: var(--text); cursor: pointer; }
+    .guest-check input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--pink); cursor: pointer; flex-shrink: 0; }
     .login-prompt { font-size: 13px; color: var(--text-muted); text-align: center; padding: 4px 0; }
     .login-prompt a { color: var(--pink); cursor: pointer; text-decoration: underline; }
     .capacity-bar-wrap { margin-top: 12px; }
@@ -390,7 +393,7 @@
       <div class="auth-card">
         <div id="auth-register-form">
           <div class="auth-field"><label>כינוי *</label><input id="reg-username" placeholder="הכינוי שלך..." maxlength="20" onfocus="maybeShowSecurityModal()" /></div>
-          <div class="auth-field"><label>סיסמה *</label><input id="reg-password" type="password" placeholder="סיסמה..." /></div>
+          <div class="auth-field"><label>סיסמה *</label><input id="reg-password" type="password" placeholder="סיסמה..." onfocus="maybeShowSecurityModal()" /></div>
           <div class="auth-field"><label>בחרי אווטאר</label><div class="auth-emoji-row" id="auth-emoji-row"></div></div>
           <button class="auth-btn" onclick="doRegister()">הצטרפות 🎉</button>
         </div>
@@ -475,7 +478,7 @@
     <h3>עריכת פרופיל</h3>
     <div class="modal-field"><label>כינוי חדש (השאירי ריק לשמור)</label><input id="edit-username" placeholder="כינוי חדש..." maxlength="20" /></div>
     <div class="modal-field"><label>סיסמה נוכחית *</label><input id="edit-current-pw" type="password" placeholder="סיסמה נוכחית..." /></div>
-    <div class="modal-field"><label>סיסמה חדשה (השאירי ריק לשמור)</label><input id="edit-new-pw" type="password" placeholder="סיסמה חדשה..." /></div>
+    <div class="modal-field"><label>סיסמה חדשה (השאירי ריק לשמור)</label><input id="edit-new-pw" type="password" placeholder="סיסמה חדשה..." onfocus="maybeShowSecurityModal()" /></div>
     <div class="modal-field"><label>אווטאר חדש</label><div class="auth-emoji-row" id="edit-emoji-row"></div></div>
     <button class="modal-save-btn" onclick="saveProfile()">שמרי שינויים</button>
     <button class="modal-cancel-btn" onclick="closeEditModal()">ביטול</button>
@@ -506,7 +509,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const SHEETS_URL   = 'https://script.google.com/macros/s/AKfycbx6fVZTu6uF1lQDDLohJFHj-LxEsce1YidVc8P12Cl8C_iN8oiH72e5bel8QBwEMm8/exec';
+const SHEETS_URL   = 'https://script.google.com/macros/s/AKfycbzm7oHQl96_b8zU3H0MtWz7jo_tdFQPON7mMVjruIG3MhduNTh09InEGX9z9KcZgfFj/exec';
 const TICKET_BASE  = 'https://hadartzvi.github.io/mid_week_movie_night/tickets/';
 const ADMIN_PW     = '1111';
 const CACHE_MOVIES = 'mn_cache_movies';
@@ -531,7 +534,8 @@ let authMode = 'register';
 let showingAllTickets = false;
 
 function getMax(m) { return parseInt(m.max_attendees) || DEFAULT_MAX; }
-function isFull(m) { return (rsvps[String(m.id)]||[]).length >= getMax(m); }
+function countAttendees(id){ return (rsvps[String(id)]||[]).reduce((sum,p)=>sum+(p.guest?2:1),0); }
+function isFull(m) { return countAttendees(m.id) >= getMax(m); }
 function ticketUrl(filename) { return filename ? TICKET_BASE + filename : ''; }
 
 function cacheGet(key) {
@@ -554,24 +558,27 @@ function parseRsvps(data) {
     const id=String(row.movie_id);
     if(!f[id])f[id]=[];
     if(row.name&&!f[id].find(p=>p.name===row.name))
-      f[id].push({name:row.name,emoji:row.emoji||'⭐'});
+      f[id].push({name:row.name,emoji:row.emoji||'⭐',guest:row.guest==='1'||row.guest===true||row.guest==='true'});
   });
   return f;
 }
 
 async function initData() {
-  const cm=cacheGet(CACHE_MOVIES),cr=cacheGet(CACHE_RSVPS);
-  if(cm){movies=cm;renderHome();}
-  if(cr){rsvps=cr;renderHome();}
+  const cm=cacheGet(CACHE_MOVIES), cr=cacheGet(CACHE_RSVPS);
+  const hasCache = !!(cm && cr);
+  if(cm){ movies=cm; }
+  if(cr){ rsvps=cr; }
+  if(hasCache){ renderHome(); renderSchedule(); }
+  // תמיד מעדכן מ-Sheets ברקע, גם כשיש cache
   try {
     const [md,rd]=await Promise.all([sheetsGet('movies'),sheetsGet('rsvps')]);
-    movies=md.map(m=>({...m,id:String(m.id),ticket_filename:m.ticket_filename||m.ticket_url||""}));
-    rsvps=parseRsvps(rd);
+    const newMovies=md.map(m=>({...m,id:String(m.id),ticket_filename:m.ticket_filename||m.ticket_url||""}));
+    const newRsvps=parseRsvps(rd);
+    const changed = JSON.stringify(newMovies)!==JSON.stringify(movies) || JSON.stringify(newRsvps)!==JSON.stringify(rsvps);
+    movies=newMovies; rsvps=newRsvps;
     cacheSet(CACHE_MOVIES,movies); cacheSet(CACHE_RSVPS,rsvps);
-    renderHome();
-  } catch(e){if(!cm){renderHome();}}
-  // טעינה מוקדמת ברקע — מוכן מיד כשנכנסים לתוכניה
-  renderSchedule();
+    if(changed || !hasCache){ renderHome(); renderSchedule(); }
+  } catch(e){ if(!hasCache){ renderHome(); renderSchedule(); } }
 }
 
 async function refreshFromSheets() {
@@ -678,13 +685,15 @@ function renderRsvpBox(){
     box.innerHTML=`<p class="login-prompt">כדי להירשם <a onclick="goPage('auth',document.querySelectorAll('.nav-btn')[2])">התחברי / הצטרפי</a></p>`;
   } else if(already){
     box.innerHTML=`
-      <button class="rsvp-btn" disabled>✓ אישרת הגעה!</button>
+      <button class="rsvp-btn" disabled>✓ אישרת הגעה!${already.guest?' (+1)':''}</button>
       <button class="cancel-rsvp-btn" onclick="doCancelRsvp()">ביטול הגעה</button>
       <a class="add-to-cal-btn" href="${buildIcsHref(movie)}" download="${movie.title.replace(/[^a-zA-Z0-9א-ת ]/g,'')}.ics" target="_blank" rel="noopener"><i class="ti ti-calendar-plus"></i> הוסיפי ליומן</a>`;
   } else if(full){
     box.innerHTML=`<button class="rsvp-btn sold-out-btn" disabled>🎟️ SOLD OUT</button>`;
   } else {
-    box.innerHTML=`<button class="rsvp-btn" onclick="doRsvp()">אשר/י הגעה</button>`;
+    box.innerHTML=`
+      <label class="guest-check"><input type="checkbox" id="guest-check"> מביאה אורח/ת (+1 מקום)</label>
+      <button class="rsvp-btn" onclick="doRsvp()">אשר/י הגעה</button>`;
   }
 }
 
@@ -693,17 +702,21 @@ async function doRsvp(){
   const movie=getNextMovie(); if(!movie)return;
   const id=String(movie.id);
   if(!rsvps[id])rsvps[id]=[];
-  if(isFull(movie)){showToast('ההקרנה מלאה!');return;}
+  const guestEl=document.getElementById('guest-check');
+  const withGuest=guestEl&&guestEl.checked;
+  const spotsNeeded=withGuest?2:1;
+  const max=getMax(movie);
+  if(countAttendees(movie.id)+spotsNeeded>max){showToast('אין מספיק מקומות פנויים!');return;}
   if(rsvps[id].find(p=>p.name===currentUser.username)){showToast('כבר נרשמת!');return;}
   const btn=document.querySelector('#rsvp-content .rsvp-btn');
   btn.innerHTML='<span class="spinner"></span>שולח...'; btn.disabled=true;
   try{
-    await sheetsPost({action:'addRsvp',movie_id:movie.id,movie_title:movie.title,name:currentUser.username,emoji:currentUser.emoji,ticket_url:movie.ticket_filename||''});
-    rsvps[id].push({name:currentUser.username,emoji:currentUser.emoji});
+    await sheetsPost({action:'addRsvp',movie_id:movie.id,movie_title:movie.title,name:currentUser.username,emoji:currentUser.emoji,ticket_url:movie.ticket_filename||'',guest:withGuest?'1':'0'});
+    rsvps[id].push({name:currentUser.username,emoji:currentUser.emoji,guest:withGuest});
     cacheSet(CACHE_RSVPS,rsvps);
-    showToast('נרשמת! מחכות לך 🎉');
+    showToast(withGuest?'נרשמת עם אורח/ת! 🎉':'נרשמת! מחכות לך 🎉');
   } catch{
-    rsvps[id].push({name:currentUser.username,emoji:currentUser.emoji});
+    rsvps[id].push({name:currentUser.username,emoji:currentUser.emoji,guest:withGuest});
     showToast('נרשמת! (ללא חיבור לרשת)');
   }
   renderHome();
@@ -785,11 +798,12 @@ function renderHome(){
   }
   document.getElementById('hero-title').textContent=movie.title;
   document.getElementById('hero-date').textContent=`${heDate(movie.date)} • ${movie.time}`;
-  const att=rsvps[String(movie.id)]||[], max=getMax(movie), full=att.length>=max;
+  const att=rsvps[String(movie.id)]||[], max=getMax(movie), total=countAttendees(movie.id), full=total>=max;
   const bubbles=att.slice(0,8).map((p,i)=>{
     const pos=BUBBLE_POS[i%BUBBLE_POS.length];
     const s=Object.entries(pos).map(([k,v])=>`${k}:${v}`).join(';');
-    return `<div class="bubble" style="${s}"><span>${p.emoji}</span><div class="bubble-tip">${p.name}</div></div>`;
+    const plusBadge=p.guest?'<div class="bubble-plus">+1</div>':'';
+    return `<div class="bubble" style="${s}"><span>${p.emoji}</span>${plusBadge}<div class="bubble-tip">${p.name}${p.guest?' +1':''}</div></div>`;
   }).join('');
   const soldOutBanner=full?'<div class="sold-out-banner">🎟️ SOLD OUT</div>':'';
   const detailsBadge='<div class="details-badge"><i class="ti ti-info-circle"></i>פרטים</div>';
@@ -797,10 +811,10 @@ function renderHome(){
     ?`<img src="${movie.poster}" class="poster-img" alt="${movie.title}" onerror="this.outerHTML='<div class=poster-placeholder><i class=ti-movie></i><span>${movie.title}</span></div>'">`
     :`<div class="poster-placeholder"><i class="ti ti-movie"></i><span>${movie.title}</span></div>`;
   document.getElementById('poster-stage').innerHTML=poster+bubbles+soldOutBanner+detailsBadge;
-  const pct=Math.min(100,Math.round(att.length/max*100));
+  const pct=Math.min(100,Math.round(total/max*100));
   document.getElementById('capacity-bar-area').innerHTML=`
     <div class="capacity-bar-wrap">
-      <div class="capacity-label"><span>${att.length}/${max} משתתפים</span><span>${full?'מלא!':max-att.length+' מקומות פנויים'}</span></div>
+      <div class="capacity-label"><span>${total}/${max} מקומות תפוסים</span><span>${full?'מלא!':max-total+' מקומות פנויים'}</span></div>
       <div class="capacity-bar"><div class="capacity-fill${full?' full':''}" style="width:${pct}%"></div></div>
     </div>`;
   renderRsvpBox();
@@ -916,7 +930,7 @@ function renderSchedule(){
   });
   list.innerHTML=Object.values(byMonth).map(({label,movies:ms})=>
     `<div class="month-section"><div class="month-label">${label}</div>${ms.map(m=>{
-      const att=(rsvps[String(m.id)]||[]).length, max=getMax(m), full=att>=max;
+      const attList=rsvps[String(m.id)]||[], att=countAttendees(m.id), max=getMax(m), full=att>=max;
       const isNext=next&&String(m.id)===String(next.id);
       const isBeyondVisible = isAdmin && parseDate(m.date) > visibleEnd;
       const thumb=m.poster?`<img src="${m.poster}" alt="${m.title}" loading="lazy" onerror="this.parentElement.innerHTML='<i class=\\'ti ti-movie\\'></i>'">`:'<i class="ti ti-movie"></i>';
@@ -946,12 +960,12 @@ async function doDetailRsvp(movieId, movieTitle, ticketFilename){
   const btn=document.getElementById('detail-rsvp-btn');
   btn.textContent='שולח...'; btn.disabled=true;
   try{
-    await sheetsPost({action:'addRsvp',movie_id:movieId,movie_title:movieTitle,name:currentUser.username,emoji:currentUser.emoji,ticket_url:ticketFilename});
-    rsvps[id].push({name:currentUser.username,emoji:currentUser.emoji});
+    await sheetsPost({action:'addRsvp',movie_id:movieId,movie_title:movieTitle,name:currentUser.username,emoji:currentUser.emoji,ticket_url:ticketFilename,guest:'0'});
+    rsvps[id].push({name:currentUser.username,emoji:currentUser.emoji,guest:false});
     cacheSet(CACHE_RSVPS,rsvps);
     showToast('נרשמת! מחכות לך 🎉');
   }catch{
-    rsvps[id].push({name:currentUser.username,emoji:currentUser.emoji});
+    rsvps[id].push({name:currentUser.username,emoji:currentUser.emoji,guest:false});
     showToast('נרשמת! (ללא חיבור לרשת)');
   }
   goDetail(movieId);
@@ -990,7 +1004,7 @@ function goDetail(id){
   const soldOutEl=full?'<div class="detail-sold-out">🎟️ SOLD OUT</div>':'';
   dp.innerHTML=(m.poster?`<img src="${m.poster}" style="width:100%;height:100%;object-fit:cover" alt="${m.title}">`:'<i class="ti ti-movie"></i>')+soldOutEl;
   const attTitle = document.getElementById('detail-att-title');
-  attTitle.textContent=`מגיעים (${att.length}/${max})`;
+  attTitle.textContent=`מגיעים (${countAttendees(m.id)}/${max})`;
 
   // כפתור הרשמה בדף פרטים
   const detailBtn = document.getElementById('detail-rsvp-btn');
@@ -1021,7 +1035,7 @@ function goDetail(id){
 
   document.getElementById('detail-bubbles').innerHTML=att.length===0
     ?'<p style="font-size:13px;color:var(--text-muted)">עדיין אין הרשמות</p>'
-    :att.map(p=>`<div class="person-bubble"><div class="person-av">${p.emoji}</div><div class="person-name">${p.name}</div></div>`).join('');
+    :att.map(p=>`<div class="person-bubble"><div class="person-av">${p.emoji}</div><div class="person-name">${p.name}${p.guest?' +1':''}</div></div>`).join('');
   document.querySelectorAll('.nav-btn,.page').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-detail').classList.add('active');
 }
@@ -1161,10 +1175,10 @@ function renderAdminStats(){
   const range=getMoviesInRange(), container=document.getElementById('admin-stats');
   if(!range.length){container.innerHTML='<p style="font-size:13px;color:var(--text-muted)">אין הקרנות בחודשיים הקרובים</p>';return;}
   container.innerHTML=range.map(m=>{
-    const att=rsvps[String(m.id)]||[], max=getMax(m), full=att.length>=max;
+    const att=rsvps[String(m.id)]||[], max=getMax(m), total=countAttendees(m.id), full=total>=max;
     return `<div class="stat-row">
-      <div class="stat-top"><span class="stat-movie">${m.title}${full?' 🎟️':''}</span><span class="stat-count${full?' full':''}">${att.length}/${max}</span></div>
-      <div class="stat-names">${att.length?att.map(p=>`${p.emoji} ${p.name}`).join(' · '):'אין הרשמות עדיין'}</div>
+      <div class="stat-top"><span class="stat-movie">${m.title}${full?' 🎟️':''}</span><span class="stat-count${full?' full':''}">${total}/${max}</span></div>
+      <div class="stat-names">${att.length?att.map(p=>`${p.emoji} ${p.name}${p.guest?' +1':''}`).join(' · '):'אין הרשמות עדיין'}</div>
     </div>`;
   }).join('');
 }
@@ -1376,13 +1390,10 @@ function checkAdminAccess(){
   return params.has('admin');
 }
 function maybeShowSecurityModal(){
-  if(!localStorage.getItem('mn_seen_security_warning')){
-    document.getElementById('security-modal-overlay').classList.add('open');
-  }
+  document.getElementById('security-modal-overlay').classList.add('open');
 }
 function closeSecurityModal(){
   document.getElementById('security-modal-overlay').classList.remove('open');
-  localStorage.setItem('mn_seen_security_warning','1');
 }
 
 // ---- INIT ----
