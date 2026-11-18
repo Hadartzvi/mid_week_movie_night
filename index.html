@@ -392,8 +392,8 @@
       <p id="auth-subtitle">צרי פרופיל אישי כדי לעקוב אחרי הסרטים שראית</p>
       <div class="auth-card">
         <div id="auth-register-form">
-          <div class="auth-field"><label>כינוי *</label><input id="reg-username" placeholder="הכינוי שלך..." maxlength="20" onfocus="maybeShowSecurityModal()" /></div>
-          <div class="auth-field"><label>סיסמה *</label><input id="reg-password" type="password" placeholder="סיסמה..." onfocus="maybeShowSecurityModal()" /></div>
+          <div class="auth-field"><label>כינוי *</label><input id="reg-username" placeholder="הכינוי שלך..." maxlength="20" /></div>
+          <div class="auth-field"><label>סיסמה *</label><input id="reg-password" type="password" placeholder="סיסמה..." onfocus="maybeShowSecurityModal('reg')" /></div>
           <div class="auth-field"><label>בחרי אווטאר</label><div class="auth-emoji-row" id="auth-emoji-row"></div></div>
           <button class="auth-btn" onclick="doRegister()">הצטרפות 🎉</button>
         </div>
@@ -478,7 +478,7 @@
     <h3>עריכת פרופיל</h3>
     <div class="modal-field"><label>כינוי חדש (השאירי ריק לשמור)</label><input id="edit-username" placeholder="כינוי חדש..." maxlength="20" /></div>
     <div class="modal-field"><label>סיסמה נוכחית *</label><input id="edit-current-pw" type="password" placeholder="סיסמה נוכחית..." /></div>
-    <div class="modal-field"><label>סיסמה חדשה (השאירי ריק לשמור)</label><input id="edit-new-pw" type="password" placeholder="סיסמה חדשה..." onfocus="maybeShowSecurityModal()" /></div>
+    <div class="modal-field"><label>סיסמה חדשה (השאירי ריק לשמור)</label><input id="edit-new-pw" type="password" placeholder="סיסמה חדשה..." onfocus="maybeShowSecurityModal('edit')" /></div>
     <div class="modal-field"><label>אווטאר חדש</label><div class="auth-emoji-row" id="edit-emoji-row"></div></div>
     <button class="modal-save-btn" onclick="saveProfile()">שמרי שינויים</button>
     <button class="modal-cancel-btn" onclick="closeEditModal()">ביטול</button>
@@ -1120,6 +1120,7 @@ function closeTicket(){document.getElementById('ticket-fullscreen').classList.re
 
 // ---- EDIT PROFILE MODAL ----
 function openEditModal(){
+  securityShown.edit=false;
   selectedEditEmoji=currentUser.emoji||'⭐';
   renderEmojiPicker('edit-emoji-row', selectedEditEmoji, function(e){
     selectedEditEmoji=e;
@@ -1389,7 +1390,10 @@ function checkAdminAccess(){
   const params = new URLSearchParams(window.location.search);
   return params.has('admin');
 }
-function maybeShowSecurityModal(){
+var securityShown={reg:false,edit:false};
+function maybeShowSecurityModal(kind){
+  if(securityShown[kind]) return;
+  securityShown[kind]=true;
   document.getElementById('security-modal-overlay').classList.add('open');
 }
 function closeSecurityModal(){
