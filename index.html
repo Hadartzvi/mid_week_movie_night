@@ -172,6 +172,10 @@
     .rv-body { flex:1; min-width:0; }
     .rv-head { display:flex; gap:8px; align-items:center; flex-wrap:wrap; font-size:13px; margin-bottom:3px; }
     .rv-head b { font-size:14px; }
+    .rv-heart { background:none; border:none; cursor:pointer; font-size:18px; display:flex; flex-direction:column; align-items:center; gap:1px; padding:2px 4px; align-self:flex-start; color:var(--text-muted); font-family:inherit; }
+    .rv-heart span { font-size:11px; }
+    .rv-heart.own { opacity:.6; }
+    .rv-heart:active { transform:scale(1.25); }
     .rv-text { font-size:14px; line-height:1.5; white-space:pre-wrap; word-break:break-word; }
     .detail-back { display: flex; align-items: center; gap: 6px; padding: 14px 16px; font-size: 14px; color: var(--pink); cursor: pointer; border: none; background: none; font-weight: 500; }
     .detail-poster-wrap { width: 100%; height: 220px; overflow: hidden; background: var(--bg2); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 56px; position: relative; }
@@ -568,7 +572,7 @@ const BUBBLE_POS = [
   {top:'42%',left:'-30px'},{top:'18px',left:'-18px'}
 ];
 
-let movies = [], rsvps = {}, suggestions = [], reviews = [];
+let movies = [], rsvps = {}, suggestions = [], reviews = [], reviewLikes = [];
 let detailMovieId = null, rvFrogs = 0;
 let currentUser = JSON.parse(localStorage.getItem('mn_user') || 'null');
 let selectedEmoji = EMOJIS[0];
@@ -633,6 +637,7 @@ async function refreshFromSheets() {
     cacheSet(CACHE_MOVIES,movies); cacheSet(CACHE_RSVPS,rsvps);
     try { suggestions = await sheetsGet('suggestions'); } catch { suggestions = []; }
     try { reviews = await sheetsGet('reviews'); } catch {}
+    try { reviewLikes = await sheetsGet('review_likes'); } catch {}
     return true;
   } catch{return false;}
 }
@@ -1120,9 +1125,9 @@ function reviewStats(id){
 }
 async function loadReviews(){
   try{
-    const data=await sheetsGet('reviews');
-    if(JSON.stringify(data)!==JSON.stringify(reviews)){
-      reviews=data;
+    const [data,lk]=await Promise.all([sheetsGet('reviews'),sheetsGet('review_likes').catch(()=>reviewLikes)]);
+    if(JSON.stringify(data)!==JSON.stringify(reviews)||JSON.stringify(lk)!==JSON.stringify(reviewLikes)){
+      reviews=data; reviewLikes=lk;
       if(document.getElementById('page-archive').classList.contains('active')) renderArchive();
       if(document.getElementById('page-detail').classList.contains('active')) renderReviews();
     }
@@ -1160,9 +1165,32 @@ function renderReviews(){
     </div>`;
   }
   const rs=[...movieReviews(m.id)].reverse();
-  html+=rs.length?rs.map(r=>`<div class="rv-item"><div class="rv-av">${escHtml(r.emoji||'⭐')}</div><div class="rv-body"><div class="rv-head"><b>${escHtml(r.username)}</b><span>${parseInt(r.frogs)?frogsStr(r.frogs):''}</span></div>${r.text?`<div class="rv-text">${escHtml(r.text)}</div>`:''}</div></div>`).join('')
+  html+=rs.length?rs.map(r=>`<div class="rv-item"><div class="rv-av">${escHtml(r.emoji||'⭐')}</div><div class="rv-body"><div class="rv-head"><b>${escHtml(r.username)}</b><span>${parseInt(r.frogs)?frogsStr(r.frogs):''}</span></div>${r.text?`<div class="rv-text">${escHtml(r.text)}</div>`:''}</div>${likeBtnHtml(m.id,r.username)}</div>`).join('')
     :'<p class="rv-note">עדיין אף אחת לא דירגה</p>';
   box.innerHTML=html+'</div>';
+}
+function reviewLikeInfo(mid,user){
+  const l=reviewLikes.filter(x=>String(x.movie_id)===String(mid)&&String(x.review_user).toLowerCase()===String(user).toLowerCase());
+  return {n:l.length,mine:!!(currentUser&&l.find(x=>String(x.liker).toLowerCase()===currentUser.username.toLowerCase()))};
+}
+function likeBtnHtml(mid,user){
+  const i=reviewLikeInfo(mid,user);
+  const own=currentUser&&String(user).toLowerCase()===currentUser.username.toLowerCase();
+  const u=encodeURIComponent(user);
+  return `<button class="rv-heart${i.mine?' on':''}${own?' own':''}" onclick="toggleReviewLike('${escHtml(mid)}','${u}')">${i.mine?'❤️':'🤍'}${i.n?`<span>${i.n}</span>`:''}</button>`;
+}
+async function toggleReviewLike(mid,uEnc){
+  const user=decodeURIComponent(uEnc);
+  if(!currentUser){showToast('התחברי כדי לסמן לב 🤍');return;}
+  if(user.toLowerCase()===currentUser.username.toLowerCase()){showToast('אי אפשר לסמן לב לתגובה של עצמך 😉');return;}
+  const same=x=>String(x.movie_id)===String(mid)&&String(x.review_user).toLowerCase()===user.toLowerCase()&&String(x.liker).toLowerCase()===currentUser.username.toLowerCase();
+  const had=reviewLikes.some(same), backup=reviewLikes;
+  reviewLikes=had?reviewLikes.filter(x=>!same(x)):[...reviewLikes,{movie_id:mid,review_user:user,liker:currentUser.username}];
+  renderReviews();
+  try{
+    const res=await sheetsPost({action:'toggleReviewLike',movie_id:mid,review_user:user,liker:currentUser.username});
+    if(res.status!=='ok'){reviewLikes=backup;renderReviews();showToast(res.message||'שגיאה');}
+  }catch{reviewLikes=backup;renderReviews();showToast('שגיאת חיבור — נסי שוב');}
 }
 function setRvFrogs(n){
   rvFrogs=n;
