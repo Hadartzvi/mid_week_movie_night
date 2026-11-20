@@ -509,7 +509,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const SHEETS_URL   = 'https://script.google.com/macros/s/AKfycbzm7oHQl96_b8zU3H0MtWz7jo_tdFQPON7mMVjruIG3MhduNTh09InEGX9z9KcZgfFj/exec';
+const SHEETS_URL   = 'https://script.google.com/macros/s/AKfycbwTpfGMQFP8hb1ywR5dvkqYMJQpkxxZdSNYgSDjljTN24JpwOHRDceBrUQq3bHQGXD_/exec';
 const TICKET_BASE  = 'https://hadartzvi.github.io/mid_week_movie_night/tickets/';
 const ADMIN_PW     = '1111';
 const CACHE_MOVIES = 'mn_cache_movies';
@@ -1149,6 +1149,8 @@ async function saveProfile(){
       localStorage.setItem('mn_user',JSON.stringify(currentUser));
       closeEditModal(); renderProfile();
       showToast('הפרופיל עודכן ✓');
+      try{localStorage.removeItem('mn_cache_rsvps');}catch(e){}
+      refreshFromSheets().then(function(){renderHome();renderSchedule();renderProfile();});
     } else showToast(res.message||'שגיאה בעדכון');
   } catch{showToast('שגיאת חיבור — נסי שוב');}
   btn.textContent='שמרי שינויים'; btn.disabled=false;
