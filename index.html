@@ -139,6 +139,40 @@
     .empty-state i { font-size: 48px; margin-bottom: 12px; display: block; }
 
     /* DETAIL */
+
+    .arch-card { display:flex; gap:12px; background:var(--bg); border:0.5px solid var(--border); border-radius:var(--radius-lg); padding:10px; margin-bottom:10px; cursor:pointer; align-items:center; }
+    .arch-poster { width:64px; height:90px; border-radius:8px; object-fit:cover; background:var(--bg2); flex-shrink:0; display:flex; align-items:center; justify-content:center; color:var(--text-muted); overflow:hidden; }
+    .arch-poster img { width:100%; height:100%; object-fit:cover; }
+    .arch-info { flex:1; min-width:0; }
+    .arch-title { font-size:15px; font-weight:600; margin-bottom:2px; }
+    .arch-date { font-size:12px; color:var(--text-muted); margin-bottom:6px; }
+    .arch-stats { font-size:13px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .arch-empty { text-align:center; color:var(--text-muted); font-size:14px; padding:40px 10px; }
+    .rv-section { margin-top:22px; border-top:0.5px solid var(--border); padding-top:16px; }
+    .rv-section h3 { font-size:16px; margin-bottom:10px; }
+    .rv-summary { font-size:14px; margin-bottom:12px; display:flex; gap:12px; flex-wrap:wrap; }
+    .rv-form { background:var(--bg2); border-radius:var(--radius-lg); padding:12px; margin-bottom:14px; }
+    .rv-like-row { display:flex; gap:8px; margin-bottom:10px; }
+    .rv-like-btn { flex:1; font-size:26px !important; line-height:1; padding:10px; border-radius:var(--radius-md); border:1px solid var(--border); background:var(--bg); font-size:15px; cursor:pointer; color:var(--text); font-family:inherit; }
+    .rv-like-btn.sel-up { border-color:var(--pink); background:var(--pink-light); }
+    .rv-like-btn.sel-down { border-color:var(--pink); background:var(--pink-light); }
+    .rv-frogs { display:flex; gap:4px; margin-bottom:10px; justify-content:center; }
+    .rv-frog { font-size:30px; cursor:pointer; filter:grayscale(1) opacity(0.35); background:none; border:none; padding:2px; transition:transform .15s; }
+    .rv-frog.on { filter:none; }
+    .rv-frog:active { transform:scale(1.2); }
+    .rv-form textarea { width:100%; padding:10px 12px; border-radius:var(--radius-md); border:0.5px solid var(--border); background:var(--bg); color:var(--text); font-size:14px; font-family:inherit; outline:none; resize:none; min-height:70px; margin-bottom:8px; }
+    .rv-form textarea:focus { border-color:var(--pink); }
+    .rv-actions { display:flex; gap:8px; }
+    .rv-save { flex:1; padding:10px; border:none; border-radius:var(--radius-md); background:var(--pink); color:#fff; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
+    .rv-del { padding:10px 14px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg); color:var(--text-muted); font-size:13px; cursor:pointer; font-family:inherit; }
+    .rv-note { font-size:13px; color:var(--text-muted); margin-bottom:14px; }
+    .rv-item { display:flex; gap:10px; padding:12px 0; border-bottom:0.5px solid var(--border); }
+    .rv-item:last-child { border-bottom:none; }
+    .rv-av { width:38px; height:38px; border-radius:50%; background:var(--pink-light); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+    .rv-body { flex:1; min-width:0; }
+    .rv-head { display:flex; gap:8px; align-items:center; flex-wrap:wrap; font-size:13px; margin-bottom:3px; }
+    .rv-head b { font-size:14px; }
+    .rv-text { font-size:14px; line-height:1.5; white-space:pre-wrap; word-break:break-word; }
     .detail-back { display: flex; align-items: center; gap: 6px; padding: 14px 16px; font-size: 14px; color: var(--pink); cursor: pointer; border: none; background: none; font-weight: 500; }
     .detail-poster-wrap { width: 100%; height: 220px; overflow: hidden; background: var(--bg2); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 56px; position: relative; }
     .detail-poster-wrap img { width: 100%; height: 100%; object-fit: cover; }
@@ -326,7 +360,8 @@
   <nav class="nav" id="main-nav">
     <button class="nav-btn active" onclick="goPage('home',this)"><i class="ti ti-home"></i><span>בית</span><div class="nav-dot"></div></button>
     <button class="nav-btn" onclick="goPage('schedule',this)"><i class="ti ti-calendar"></i><span>תוכניה</span><div class="nav-dot"></div></button>
-    <button class="nav-btn" onclick="goPage('profile',this)"><i class="ti ti-user"></i><span>פרופיל</span><div class="nav-dot"></div></button>
+    <button class="nav-btn" id="nav-archive" onclick="goPage('archive',this)"><i class="ti ti-archive"></i><span>ארכיון</span><div class="nav-dot"></div></button>
+    <button class="nav-btn" id="nav-profile" onclick="goPage('profile',this)"><i class="ti ti-user"></i><span>פרופיל</span><div class="nav-dot"></div></button>
     <button class="nav-btn" id="admin-nav-btn" onclick="goPage('admin',this)" style="display:none"><i class="ti ti-settings"></i><span>ניהול</span><div class="nav-dot"></div></button>
   </nav>
 
@@ -369,7 +404,7 @@
 
   <!-- DETAIL -->
   <div id="page-detail" class="page">
-    <button class="detail-back" onclick="goPage('schedule',document.querySelectorAll('.nav-btn')[1])"><i class="ti ti-arrow-right"></i> חזרה לתוכניה</button>
+    <button class="detail-back" id="detail-back-btn" onclick="detailBack()"><i class="ti ti-arrow-right"></i> <span id="detail-back-txt">חזרה לתוכניה</span></button>
     <div class="detail-poster-wrap" id="detail-poster"><i class="ti ti-movie"></i></div>
     <div class="detail-content">
       <h2 id="detail-title"></h2>
@@ -381,7 +416,14 @@
       </div>
       <div id="detail-cal-area"></div>
       <div class="bubbles-row" id="detail-bubbles"></div>
+      <div id="detail-reviews"></div>
     </div>
+  </div>
+
+  <!-- ARCHIVE -->
+  <div id="page-archive" class="page">
+    <div class="page-header"><h2>ארכיון 🐸</h2><p>סרטים שכבר ראינו ביחד - דרגו וספרו מה חשבתן</p></div>
+    <div id="archive-list" style="padding:0 16px"></div>
   </div>
 
   <!-- AUTH -->
@@ -526,7 +568,8 @@ const BUBBLE_POS = [
   {top:'42%',left:'-30px'},{top:'18px',left:'-18px'}
 ];
 
-let movies = [], rsvps = {}, suggestions = [];
+let movies = [], rsvps = {}, suggestions = [], reviews = [];
+let detailMovieId = null, rvFrogs = 0;
 let currentUser = JSON.parse(localStorage.getItem('mn_user') || 'null');
 let selectedEmoji = EMOJIS[0];
 let selectedEditEmoji = null;
@@ -578,6 +621,7 @@ async function initData() {
     movies=newMovies; rsvps=newRsvps;
     cacheSet(CACHE_MOVIES,movies); cacheSet(CACHE_RSVPS,rsvps);
     if(changed || !hasCache){ renderHome(); renderSchedule(); }
+    loadReviews();
   } catch(e){ if(!hasCache){ renderHome(); renderSchedule(); } }
 }
 
@@ -588,6 +632,7 @@ async function refreshFromSheets() {
     rsvps=parseRsvps(rd);
     cacheSet(CACHE_MOVIES,movies); cacheSet(CACHE_RSVPS,rsvps);
     try { suggestions = await sheetsGet('suggestions'); } catch { suggestions = []; }
+    try { reviews = await sheetsGet('reviews'); } catch {}
     return true;
   } catch{return false;}
 }
@@ -645,7 +690,7 @@ async function doRegister() {
       currentUser={username,emoji:selectedEmoji,password};
       localStorage.setItem('mn_user',JSON.stringify(currentUser));
       showToast('ברוכה הבאה '+username+' 🎉');
-      goPage('profile',document.querySelectorAll('.nav-btn')[2]);
+      goPage('profile',document.getElementById('nav-profile'));
     } else showToast(res.message||'שגיאה ברישום');
   } catch{showToast('שגיאת חיבור — נסי שוב');}
   btn.textContent='הצטרפות 🎉'; btn.disabled=false;
@@ -663,7 +708,7 @@ async function doLogin() {
       currentUser={username:res.username,emoji:res.emoji,password};
       localStorage.setItem('mn_user',JSON.stringify(currentUser));
       showToast('ברוכה השבה '+res.username+' 🎬');
-      goPage('profile',document.querySelectorAll('.nav-btn')[2]);
+      goPage('profile',document.getElementById('nav-profile'));
     } else showToast(res.message||'שגיאה בהתחברות');
   } catch{showToast('שגיאת חיבור — נסי שוב');}
   btn.textContent='התחברות'; btn.disabled=false;
@@ -671,7 +716,7 @@ async function doLogin() {
 
 function doLogout(){
   currentUser=null; localStorage.removeItem('mn_user');
-  goPage('auth',document.querySelectorAll('.nav-btn')[2]);
+  goPage('auth',document.getElementById('nav-profile'));
   showToast('להתראות! 👋');
 }
 
@@ -682,7 +727,7 @@ function renderRsvpBox(){
   const att=rsvps[String(movie.id)]||[], max=getMax(movie), full=att.length>=max;
   const already=currentUser&&att.find(p=>p.name===currentUser.username);
   if(!currentUser){
-    box.innerHTML=`<p class="login-prompt">כדי להירשם <a onclick="goPage('auth',document.querySelectorAll('.nav-btn')[2])">התחברי / הצטרפי</a></p>`;
+    box.innerHTML=`<p class="login-prompt">כדי להירשם <a onclick="goPage('auth',document.getElementById('nav-profile'))">התחברי / הצטרפי</a></p>`;
   } else if(already){
     box.innerHTML=`
       <button class="rsvp-btn" disabled>✓ אישרת הגעה!${already.guest?' (+1)':''}</button>
@@ -698,7 +743,7 @@ function renderRsvpBox(){
 }
 
 async function doRsvp(){
-  if(!currentUser){goPage('auth',document.querySelectorAll('.nav-btn')[2]);return;}
+  if(!currentUser){goPage('auth',document.getElementById('nav-profile'));return;}
   const movie=getNextMovie(); if(!movie)return;
   const id=String(movie.id);
   if(!rsvps[id])rsvps[id]=[];
@@ -746,7 +791,7 @@ function renderSuggestBox(){
   const card=document.getElementById('suggest-card');
   if(!card) return;
   if(!currentUser){
-    card.innerHTML=`<div class="suggest-locked"><p>כדי להציע סרט <a onclick="goPage('auth',document.querySelectorAll('.nav-btn')[2])">התחברי / הצטרפי</a></p></div>`;
+    card.innerHTML=`<div class="suggest-locked"><p>כדי להציע סרט <a onclick="goPage('auth',document.getElementById('nav-profile'))">התחברי / הצטרפי</a></p></div>`;
     return;
   }
   card.innerHTML=`
@@ -951,7 +996,7 @@ function renderSchedule(){
 }
 
 async function doDetailRsvp(movieId, movieTitle, ticketFilename){
-  if(!currentUser){goPage('auth',document.querySelectorAll('.nav-btn')[2]);return;}
+  if(!currentUser){goPage('auth',document.getElementById('nav-profile'));return;}
   const id=String(movieId);
   if(!rsvps[id])rsvps[id]=[];
   const movie=movies.find(m=>String(m.id)===id);
@@ -996,6 +1041,9 @@ async function doDetailCancel(movieId, movieTitle){
 // ---- DETAIL ----
 function goDetail(id){
   const m=movies.find(x=>String(x.id)===String(id)); if(!m)return;
+  detailMovieId=String(m.id);
+  const past=isPast(m);
+  document.getElementById('detail-back-txt').textContent=past?'חזרה לארכיון':'חזרה לתוכניה';
   document.getElementById('detail-title').textContent=m.title;
   document.getElementById('detail-meta').textContent=`${heDate(m.date)} • ${m.time}${m.genre?' • '+m.genre:''}`;
   document.getElementById('detail-desc').textContent=m.desc||'';
@@ -1012,7 +1060,7 @@ function goDetail(id){
   if(!currentUser){
     detailBtn.textContent='התחברי להרשמה';
     detailBtn.className='detail-rsvp-btn login';
-    detailBtn.onclick=()=>goPage('auth',document.querySelectorAll('.nav-btn')[2]);
+    detailBtn.onclick=()=>goPage('auth',document.getElementById('nav-profile'));
     detailBtn.disabled=false;
   } else if(alreadyIn){
     detailBtn.textContent='בטלי הגעה';
@@ -1036,8 +1084,113 @@ function goDetail(id){
   document.getElementById('detail-bubbles').innerHTML=att.length===0
     ?'<p style="font-size:13px;color:var(--text-muted)">עדיין אין הרשמות</p>'
     :att.map(p=>`<div class="person-bubble"><div class="person-av">${p.emoji}</div><div class="person-name">${p.name}${p.guest?' +1':''}</div></div>`).join('');
+  if(past){
+    document.getElementById('detail-rsvp-btn').style.display='none';
+    document.getElementById('detail-cal-area').innerHTML='';
+    attTitle.textContent=`הגיעו (${countAttendees(m.id)})`;
+  } else document.getElementById('detail-rsvp-btn').style.display='';
+  renderReviews();
   document.querySelectorAll('.nav-btn,.page').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-detail').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function detailBack(){
+  const m=movies.find(x=>String(x.id)===String(detailMovieId));
+  if(m&&isPast(m)) goPage('archive',document.getElementById('nav-archive'));
+  else goPage('schedule',document.querySelectorAll('.nav-btn')[1]);
+}
+
+// ---- ARCHIVE & REVIEWS ----
+function isPast(m){
+  if(isWatchlist(m)) return false;
+  const now=new Date(); now.setHours(0,0,0,0);
+  return parseDate(m.date)<now;
+}
+function getPastMovies(){ return getScheduledMovies().filter(isPast).sort((a,b)=>parseDate(b.date)-parseDate(a.date)); }
+function escHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function movieReviews(id){ return reviews.filter(r=>String(r.movie_id)===String(id)); }
+function frogsStr(n){ n=parseInt(n)||0; return '🐸'.repeat(n)+'<span style="filter:grayscale(1) opacity(.3)">'+'🐸'.repeat(5-n)+'</span>'; }
+function reviewStats(id){
+  const rs=movieReviews(id), n=rs.length;
+  const ups=rs.filter(r=>String(r.like)==='up').length;
+  const fr=rs.map(r=>parseInt(r.frogs)||0).filter(x=>x>0);
+  const avg=fr.length?(fr.reduce((a,b)=>a+b,0)/fr.length):0;
+  return {n,ups,downs:rs.filter(r=>String(r.like)==='down').length,avg};
+}
+async function loadReviews(){
+  try{
+    const data=await sheetsGet('reviews');
+    if(JSON.stringify(data)!==JSON.stringify(reviews)){
+      reviews=data;
+      if(document.getElementById('page-archive').classList.contains('active')) renderArchive();
+      if(document.getElementById('page-detail').classList.contains('active')) renderReviews();
+    }
+  }catch(e){}
+}
+function renderArchive(){
+  const el=document.getElementById('archive-list'), list=getPastMovies();
+  if(!list.length){ el.innerHTML='<div class="arch-empty">עדיין אין סרטים בארכיון 🎞️<br>אחרי ההקרנה הראשונה הם יופיעו כאן</div>'; return; }
+  el.innerHTML=list.map(m=>{
+    const s=reviewStats(m.id);
+    const stats=s.n?`<span>🐸 ${s.avg?s.avg.toFixed(1):'-'}</span><span style="color:var(--text-muted)">${s.n} דירוגים</span>`:'<span style="color:var(--text-muted)">עדיין לא דורג - תהיו הראשונות!</span>';
+    return `<div class="arch-card" onclick="goDetail('${escHtml(m.id)}')">
+      <div class="arch-poster">${m.poster?`<img src="${escHtml(m.poster)}" alt="">`:'<i class="ti ti-movie"></i>'}</div>
+      <div class="arch-info"><div class="arch-title">${escHtml(m.title)}</div><div class="arch-date">${heDate(m.date)}</div><div class="arch-stats">${stats}</div></div></div>`;
+  }).join('');
+}
+function renderReviews(){
+  const box=document.getElementById('detail-reviews');
+  const m=movies.find(x=>String(x.id)===String(detailMovieId));
+  if(!m||!isPast(m)){ box.innerHTML=''; return; }
+  const att=rsvps[String(m.id)]||[];
+  const attended=currentUser&&att.find(p=>p.name===currentUser.username);
+  const mine=currentUser&&movieReviews(m.id).find(r=>String(r.username).toLowerCase()===currentUser.username.toLowerCase());
+  const s=reviewStats(m.id);
+  let html='<div class="rv-section"><h3>מה חשבתן? 🐸</h3>';
+  if(s.n) html+=`<div class="rv-summary"><span>🐸 ממוצע ${s.avg?s.avg.toFixed(1):'-'}/5</span><span style="color:var(--text-muted)">${s.n} דירוגים</span></div>`;
+  if(!currentUser) html+='<p class="rv-note">כדי לדרג <a onclick="goPage(\'auth\',document.getElementById(\'nav-profile\'))" style="color:var(--pink);cursor:pointer">התחברי / הצטרפי</a></p>';
+  else if(!attended) html+='<p class="rv-note">רק מי שנרשמה להקרנה יכולה לדרג אותה 🎟️</p>';
+  else {
+    rvFrogs=mine?(parseInt(mine.frogs)||0):0;
+    html+=`<div class="rv-form">
+      <div class="rv-frogs" id="rv-frogs">${[1,2,3,4,5].map(i=>`<button class="rv-frog${i<=rvFrogs?' on':''}" onclick="setRvFrogs(${i})">🐸</button>`).join('')}</div>
+      <textarea id="rv-text" maxlength="500" placeholder="כמה מילים על הסרט... (לא חובה)">${escHtml(mine?mine.text:'')}</textarea>
+      <div class="rv-actions"><button class="rv-save" id="rv-save" onclick="saveReview()">${mine?'עדכני דירוג':'שלחי דירוג'}</button>${mine?'<button class="rv-del" onclick="deleteMyReview()">מחקי</button>':''}</div>
+    </div>`;
+  }
+  const rs=[...movieReviews(m.id)].reverse();
+  html+=rs.length?rs.map(r=>`<div class="rv-item"><div class="rv-av">${escHtml(r.emoji||'⭐')}</div><div class="rv-body"><div class="rv-head"><b>${escHtml(r.username)}</b><span>${parseInt(r.frogs)?frogsStr(r.frogs):''}</span></div>${r.text?`<div class="rv-text">${escHtml(r.text)}</div>`:''}</div></div>`).join('')
+    :'<p class="rv-note">עדיין אף אחת לא דירגה</p>';
+  box.innerHTML=html+'</div>';
+}
+function setRvFrogs(n){
+  rvFrogs=n;
+  document.querySelectorAll('#rv-frogs .rv-frog').forEach((b,i)=>b.classList.toggle('on',i<n));
+}
+async function saveReview(){
+  const m=movies.find(x=>String(x.id)===String(detailMovieId)); if(!m||!currentUser)return;
+  const text=document.getElementById('rv-text').value.trim();
+  if(!rvFrogs&&!text){showToast('בחרי דירוג או כתבי משהו 🐸');return;}
+  const btn=document.getElementById('rv-save'); btn.disabled=true; btn.textContent='שולחת...';
+  try{
+    const res=await sheetsPost({action:'saveReview',movie_id:m.id,movie_title:m.title,username:currentUser.username,emoji:currentUser.emoji,frogs:rvFrogs||'',text});
+    if(res.status==='ok'){
+      reviews=reviews.filter(r=>!(String(r.movie_id)===String(m.id)&&String(r.username).toLowerCase()===currentUser.username.toLowerCase()));
+      reviews.push({movie_id:m.id,movie_title:m.title,username:currentUser.username,emoji:currentUser.emoji,frogs:rvFrogs||'',text});
+      showToast('תודה על הדירוג! 🐸'); renderReviews();
+    } else { showToast(res.message||'שגיאה בשליחה'); btn.disabled=false; btn.textContent='שלחי דירוג'; }
+  }catch{ showToast('שגיאת חיבור — נסי שוב'); btn.disabled=false; btn.textContent='שלחי דירוג'; }
+}
+async function deleteMyReview(){
+  const m=movies.find(x=>String(x.id)===String(detailMovieId)); if(!m||!currentUser)return;
+  try{
+    const res=await sheetsPost({action:'deleteReview',movie_id:m.id,username:currentUser.username});
+    if(res.status==='ok'){
+      reviews=reviews.filter(r=>!(String(r.movie_id)===String(m.id)&&String(r.username).toLowerCase()===currentUser.username.toLowerCase()));
+      showToast('הדירוג נמחק'); renderReviews();
+    } else showToast(res.message||'שגיאה');
+  }catch{ showToast('שגיאת חיבור — נסי שוב'); }
 }
 
 // ---- PROFILE ----
@@ -1367,6 +1520,7 @@ function goPage(name,btn){
   targetPage.classList.add('active');
   if(target==='home')renderHome();
   if(target==='schedule')renderSchedule();
+  if(target==='archive'){renderArchive(); loadReviews();}
   if(target==='profile'){renderProfile();}
   if(target==='auth'){
     authMode='register';
